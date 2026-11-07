@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lafiya</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%279%27 fill=%27%23F4B942%27/%3E%3Cpath d=%27M5 16h5l2.5-7 5 14 2.5-7H27%27 fill=%27none%27 stroke=%27%230A3F2E%27 stroke-width=%273.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Palette: deep forest + emerald with one marigold accent; light mint-grey page. Single theme by choice. */
+  --bg:#F2F6F3;
+  --surface:#FFFFFF;
+  --ink:#0E2A1E;
+  --ink-2:#4B625A;
+  --line:#D7E2DB;
+  --forest:#0A3F2E;
+  --forest-2:#0D5139;
+  --green:#107A52;
+  --green-soft:#DDF0E6;
+  --marigold:#F4B942;
+  --marigold-deep:#B97E0C;
+  --good:#1C9A5E;
+  --warn:#D98E1C;
+  --bad:#D04A4A;
+  --display:'Bricolage Grotesque', 'Avenir Next', 'Segoe UI', sans-serif;
+  --body:'Manrope', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --radius:18px;
+  /* Type scale (1.25 ratio) */
+  --t-xs:12px; --t-sm:13.5px; --t-base:16px; --t-md:18px; --t-lg:22px; --t-xl:28px; --t-2xl:clamp(32px,4vw,48px); --t-3xl:clamp(44px,6.4vw,84px);
+  --lh-tight:1.02; --lh-snug:1.25; --lh-body:1.6;
+  --track-display:-0.03em; --track-caps:.12em;
+  --space-section:clamp(72px,10vw,128px);
+  --shadow:0 18px 50px -24px rgba(10,63,46,.35);
+  /* Layout: dark hero with a live two-card composition, then four light editorial sections numbered 01 to 04. */
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--marigold);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-0.01em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Media frames ---------- */
+.media{position:relative;overflow:hidden;border-radius:var(--radius);background:
+  linear-gradient(135deg,var(--forest) 0%,var(--green) 60%,#1E9E62 100%);isolation:isolate}
+.media::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.3px);background-size:18px 18px;opacity:.6;mix-blend-mode:overlay;pointer-events:none}
+.media img,.media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .9s ease,transform 1.2s cubic-bezier(.2,.7,.2,1);transform:scale(1.06)}
+.media img.ready,.media video.ready{opacity:1;transform:scale(1)}
+.media .cap{position:absolute;left:18px;right:18px;bottom:16px;color:#fff;font-weight:700;font-size:var(--t-sm);text-shadow:0 2px 12px rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;z-index:2}
+.media .cap .k{font-size:var(--t-xs);font-weight:800;letter-spacing:var(--track-caps);text-transform:uppercase;color:var(--marigold);display:block;margin-bottom:4px}
+.media .shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,63,46,.78) 0%,rgba(10,63,46,.08) 55%,transparent 100%);z-index:1;pointer-events:none}
+.media .play{position:absolute;top:14px;right:14px;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);color:var(--forest);display:grid;place-items:center;font-size:12px;font-weight:800}
+.curtain::before{content:"";position:absolute;inset:-1px;background:var(--bg);z-index:5;transform:translateY(0);transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.curtain.in::before{transform:translateY(-102%)}
+.px{will-change:transform}
+
+/* Hero video layer */
+.hero .bg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.hero .bg img,.hero .bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease}
+.hero .bg img.ready{opacity:.22;animation:kb 28s ease-in-out infinite alternate}
+.hero .bg video.ready{opacity:.28}
+.hero .bg video.ready ~ img{opacity:0;animation:none}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.12) translate(-1.5%, -1%)}}
+.hero .bg .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,63,46,.96) 0%,rgba(10,63,46,.78) 50%,rgba(10,63,46,.55) 100%)}
+.hero::before{z-index:1}
+.hero .wrap{z-index:2}
+
+/* Ticker */
+.ticker{background:var(--forest);color:#fff;overflow:hidden;border-top:1px solid rgba(255,255,255,.08);padding:0}
+.ticker .track{display:flex;gap:56px;white-space:nowrap;padding:16px 0;animation:tick 38s linear infinite;width:max-content}
+.ticker span{font-family:var(--display);font-weight:600;font-size:var(--t-lg);letter-spacing:-0.01em;display:inline-flex;align-items:center;gap:56px}
+.ticker i{width:8px;height:8px;border-radius:50%;background:var(--marigold);display:inline-block}
+.ticker:hover .track{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* Mosaic */
+.mosaic{display:grid;grid-template-columns:1.25fr 1fr 1fr;grid-template-rows:300px 300px;gap:16px}
+.mosaic .m1{grid-row:1/3}
+.mosaic .m4{grid-column:2/4}
+@media (max-width:1000px){.mosaic{grid-template-columns:1fr 1fr;grid-template-rows:260px 260px 260px}.mosaic .m1{grid-column:1/3;grid-row:1}.mosaic .m4{grid-column:1/3}}
+@media (max-width:720px){.mosaic{grid-template-columns:1fr;grid-template-rows:repeat(4,240px)}.mosaic .m1,.mosaic .m4{grid-column:1}}
+
+/* How-step media */
+.how-step .thumb{height:150px;margin:-30px -28px 22px;border-radius:20px 20px 0 0}
+.how-step .thumb .shade{background:linear-gradient(to top,rgba(10,63,46,.9),transparent 70%)}
+
+/* Skill feature header */
+.feature .fmedia{height:220px;margin:-28px -28px 24px;border-radius:22px 22px 0 0}
+
+/* Trust side image */
+.trust-head{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-bottom:56px}
+.trust-head .media{height:340px}
+@media (max-width:1000px){.trust-head{grid-template-columns:1fr}.trust-head .media{height:240px}}
+
+/* Nav on scroll */
+.nav{transition:box-shadow .25s,background .25s}
+.nav.scrolled{box-shadow:0 10px 30px -18px rgba(0,0,0,.6);background:rgba(10,63,46,.92);backdrop-filter:blur(10px)}
+.nav.scrolled .wrap{height:60px}
+.nav .wrap{transition:height .25s}
+
+/* Spotlight on dark sections */
+.spot{position:relative}
+.spot::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px 420px at var(--mx,50%) var(--my,50%),rgba(244,185,66,.10),transparent 60%);transition:opacity .3s;opacity:0}
+.spot:hover::after{opacity:1}
+
+/* Magnetic buttons */
+.btn,.sos,.call{will-change:transform}
+
+/* ---------- Nav ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:var(--forest);
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nav .wrap{display:flex;align-items:center;gap:20px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-0.02em}
+.brand .mark{width:34px;height:34px;border-radius:10px;background:var(--marigold);display:grid;place-items:center;color:var(--forest)}
+.nav-links{display:flex;gap:4px;margin-left:12px}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.82);padding:8px 12px;border-radius:999px;font-weight:600;font-size:14.5px}
+.nav-links a:hover{background:rgba(255,255,255,.08);color:#fff}
+.spacer{flex:1}
+.langs{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:4px;gap:2px}
+.langs button{
+  border:0;background:transparent;color:rgba(255,255,255,.75);
+  font-weight:700;font-size:13px;letter-spacing:.04em;
+  padding:7px 12px;border-radius:999px;transition:background .15s,color .15s;
+}
+.langs button:hover{color:#fff}
+.langs button[aria-pressed="true"]{background:var(--marigold);color:var(--forest)}
+.sos{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  background:#fff;color:var(--forest);font-weight:800;font-size:14px;
+  padding:10px 16px;border-radius:999px;white-space:nowrap;
+}
+.sos .dot{width:9px;height:9px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 0 rgba(208,74,74,.6);animation:pulse 1.6s infinite}
+@keyframes pulse{to{box-shadow:0 0 0 9px rgba(208,74,74,0)}}
+
+/* ---------- Hero ---------- */
+.hero{
+  background:
+    radial-gradient(900px 500px at 85% 10%, rgba(244,185,66,.16), transparent 60%),
+    radial-gradient(700px 500px at 10% 100%, rgba(16,122,82,.45), transparent 60%),
+    var(--forest);
+  color:#fff;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.08) 1px, transparent 1.2px);
+  background-size:22px 22px;
+  mask-image:linear-gradient(to bottom, rgba(0,0,0,.6), transparent 85%);
+  pointer-events:none;
+}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:64px;align-items:center;padding-top:96px;padding-bottom:112px}
+.greet{
+  font-family:var(--display);font-weight:600;font-size:18px;color:var(--marigold);
+  display:inline-flex;align-items:center;gap:10px;min-height:28px;
+}
+.greet .word{display:inline-block;transition:opacity .35s ease, transform .35s ease}
+.greet .word.out{opacity:0;transform:translateY(6px)}
+.greet .ln{width:28px;height:2px;background:var(--marigold);border-radius:2px}
+.hero h1{
+  font-size:var(--t-3xl);line-height:var(--lh-tight);font-weight:800;letter-spacing:var(--track-display);
+  margin:22px 0 26px;
+}
+.hero h1 .accent{color:var(--marigold)}
+.hero p.lead{font-size:var(--t-md);line-height:var(--lh-body);color:rgba(255,255,255,.8);max-width:52ch;margin:0 0 36px}
+.search{
+  display:flex;gap:8px;background:#fff;border-radius:16px;padding:8px;
+  box-shadow:0 20px 60px -20px rgba(0,0,0,.5);max-width:620px;
+}
+.search .ico{display:grid;place-items:center;padding:0 6px 0 12px;color:var(--green)}
+.search input{
+  flex:1;border:0;font:inherit;font-size:16px;color:var(--ink);background:transparent;min-width:0;padding:10px 4px;
+}
+.search input::placeholder{color:#8A9A93}
+.search input:focus{outline:none}
+.btn{
+  border:0;border-radius:12px;padding:12px 20px;font-weight:800;font-size:15px;
+  background:var(--green);color:#fff;transition:transform .12s, background .15s;
+}
+.btn:hover{background:var(--forest-2);transform:translateY(-1px)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--green);border:1.5px solid var(--line)}
+.btn.ghost:hover{background:var(--green-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;
+  border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:600;
+  display:inline-flex;align-items:center;gap:7px;transition:background .15s,border-color .15s;
+}
+.chip:hover{background:rgba(255,255,255,.14)}
+.chip[aria-pressed="true"]{background:var(--marigold);color:var(--forest);border-color:var(--marigold)}
+.stats{display:flex;gap:44px;margin-top:52px;flex-wrap:wrap}
+.stat b{display:block;font-family:var(--display);font-size:30px;font-weight:800;letter-spacing:-0.02em;line-height:1}
+.stat span{font-size:13px;color:rgba(255,255,255,.7);font-weight:600}
+
+/* Hero composition */
+.compose{position:relative;min-height:560px}
+.card{
+  background:var(--surface);color:var(--ink);border-radius:var(--radius);
+  border:1px solid var(--line);box-shadow:var(--shadow);
+}
+.compose .card{position:absolute;padding:20px 22px;animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+.compose .c1{top:0;right:0;width:min(400px,100%);transform:rotate(-1.5deg);animation-delay:.1s}
+.compose .c2{bottom:0;left:0;width:min(340px,96%);transform:rotate(1.2deg);animation-delay:.3s}
+@keyframes rise{from{translate:0 18px}to{translate:0 0}}
+.card .kicker{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.card h3{font-size:20px;font-weight:700;margin:4px 0 2px}
+.card .sub{font-size:13.5px;color:var(--ink-2)}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--good)}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.tile{background:var(--bg);border-radius:12px;padding:10px 12px}
+.tile small{display:block;font-size:11px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em}
+.tile b{display:block;font-family:var(--display);font-size:20px;margin-top:2px}
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px}
+.status i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.status.good i{background:var(--good)}.status.warn i{background:var(--warn)}.status.bad i{background:var(--bad)}
+.bloods{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.blood{
+  font-size:12px;font-weight:800;border-radius:8px;padding:4px 8px;background:#FBE9E9;color:#8E2A2A;
+  font-variant-numeric:tabular-nums;
+}
+.blood.low{background:#FFF3DA;color:#8A5A00}
+.summary-lines{margin:12px 0 0;padding:14px;background:var(--green-soft);border-radius:12px;font-size:14px;line-height:1.5}
+.summary-lines .lang-tag{display:inline-block;font-size:11px;font-weight:800;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+
+/* ---------- Sections ---------- */
+section{padding:var(--space-section) 0}
+.eyebrow{display:flex;align-items:center;gap:12px;font-weight:800;font-size:var(--t-xs);letter-spacing:var(--track-caps);text-transform:uppercase;color:var(--green)}
+.eyebrow .n{font-family:var(--display);font-size:13px;background:var(--green-soft);padding:4px 9px;border-radius:7px}
+.sec-head{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:end;margin:18px 0 56px}
+.sec-head h2{font-size:var(--t-2xl);line-height:var(--lh-tight);font-weight:800;letter-spacing:var(--track-display)}
+.sec-head p{margin:0;color:var(--ink-2);font-size:var(--t-md);line-height:var(--lh-body);max-width:46ch}
+
+/* Pillars */
+.pillars{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0}
+.pillars .grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.pillar{padding:48px 32px 52px;border-right:1px solid var(--line);position:relative;transition:background .2s}
+.pillar:hover{background:var(--bg)}
+.pillar:hover .glyph{background:var(--forest);color:var(--marigold)}
+.pillar:last-child{border-right:0}
+.pillar .glyph{width:44px;height:44px;border-radius:12px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin-bottom:22px;transition:background .2s,color .2s}
+.pillar h3{font-size:19px;font-weight:700;margin-bottom:8px}
+.pillar p{margin:0;color:var(--ink-2);font-size:15px;line-height:var(--lh-body)}
+.pillar .idx{position:absolute;top:18px;right:22px;font-family:var(--display);font-weight:700;color:var(--line);font-size:28px}
+
+/* Symptoms */
+.symp{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:32px}
+.field{margin-bottom:28px}
+.field label{display:block;font-weight:800;font-size:14px;margin-bottom:10px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{
+  border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;
+  padding:8px 14px;font-weight:600;font-size:14px;transition:all .12s;
+}
+.opt:hover{border-color:var(--green)}
+.opt[aria-pressed="true"]{background:var(--forest);border-color:var(--forest);color:#fff}
+.opt.sev-3[aria-pressed="true"]{background:var(--bad);border-color:var(--bad)}
+.out{position:sticky;top:92px}
+.out .panel{background:var(--forest);color:#fff;border-color:transparent}
+.out .kicker{color:rgba(255,255,255,.65);font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.out .para.local{min-height:0}
+.out .para{
+  background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.25);border-radius:14px;
+  padding:16px;margin:14px 0;min-height:110px;font-size:15px;line-height:1.6;
+}
+.out .para .tag{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--marigold);margin-bottom:6px}
+.out .para + .para{margin-top:0}
+.out .muted{color:rgba(255,255,255,.6)}
+.flag{
+  display:none;gap:10px;align-items:flex-start;background:#FBE4E4;color:#7E1F1F;border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;margin-top:10px;
+}
+.flag.show{display:flex}
+.out .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn.light{background:var(--marigold);color:var(--forest)}
+.btn.light:hover{background:#FFD070}
+.btn.outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35)}
+.btn.outline:hover{background:rgba(255,255,255,.1)}
+
+/* Skills */
+.skills{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.skills-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:28px;align-items:start}
+.skill-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.skill{
+  text-align:left;border:1.5px solid var(--line);border-radius:16px;background:var(--surface);padding:18px;
+  display:flex;flex-direction:column;gap:10px;transition:border-color .15s, transform .15s;
+}
+.skill:hover{border-color:var(--green);transform:translateY(-2px)}
+.skill[aria-pressed="true"]{border-color:var(--forest);background:var(--green-soft)}
+.skill .top{display:flex;justify-content:space-between;align-items:center}
+.skill .glyph{width:38px;height:38px;border-radius:10px;background:var(--bg);color:var(--forest);display:grid;place-items:center}
+.skill[aria-pressed="true"] .glyph{background:var(--forest);color:var(--marigold)}
+.skill .mins{font-size:12px;font-weight:800;color:var(--ink-2)}
+.skill h3{font-size:16.5px;font-weight:700}
+.feature{background:var(--bg);border-radius:22px;padding:28px;border:1px solid var(--line)}
+.feature h3{font-size:26px;font-weight:800;margin-bottom:6px}
+.feature .note{font-size:13px;color:var(--ink-2);margin-bottom:18px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+.steps li{
+  display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start;
+  background:var(--surface);border-radius:14px;padding:14px 16px;border:1px solid var(--line);font-size:15px;
+}
+.steps li::before{
+  counter-increment:s;content:counter(s);
+  font-family:var(--display);font-weight:800;font-size:18px;color:var(--forest);
+  background:var(--marigold);border-radius:10px;width:40px;height:40px;display:grid;place-items:center;
+}
+.feature .en-note{display:none;font-size:13px;color:var(--ink-2);margin-top:12px}
+.feature .en-note.show{display:block}
+
+/* Hospitals */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.filters .opt[aria-pressed="true"]{background:var(--forest);color:#fff}
+.hosp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.hosp{padding:26px 28px;display:flex;flex-direction:column;gap:16px;transition:transform .2s,box-shadow .2s,border-color .2s}
+.hosp:hover{transform:translateY(-3px);box-shadow:0 28px 60px -28px rgba(10,63,46,.45);border-color:#BFD3C8}
+.hosp .head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.hosp h3{font-size:21px;font-weight:700}
+.hosp .meta{font-size:13.5px;color:var(--ink-2);margin-top:3px}
+.hosp .dist{font-family:var(--display);font-weight:800;font-size:20px;white-space:nowrap}
+.hosp .dist small{font-size:12px;font-weight:700;color:var(--ink-2);display:block;text-align:right}
+.hosp .row3 .tile b{font-size:17px}
+.hosp .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:14px;margin-top:2px}
+.hosp .foot .upd{font-size:12.5px;color:var(--ink-2);font-weight:600}
+.hosp .foot .acts{display:flex;gap:8px}
+.btn.sm{padding:9px 14px;font-size:13.5px;border-radius:10px}
+.docs-list{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.pill{font-size:12px;font-weight:800;padding:4px 9px;border-radius:999px;background:var(--green-soft);color:var(--green)}
+.pill.off{background:#EEF1EF;color:var(--ink-2)}
+
+/* Emergency band */
+.band{background:var(--marigold);color:var(--forest)}
+.band .wrap{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:34px 24px;flex-wrap:wrap}
+.band h2{font-size:clamp(26px,3.4vw,38px);font-weight:800;line-height:1.1}
+.band p{margin:6px 0 0;font-weight:600;color:rgba(10,63,46,.8)}
+.band .call{
+  display:inline-flex;align-items:center;gap:12px;background:var(--forest);color:#fff;text-decoration:none;
+  padding:16px 24px;border-radius:16px;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-0.02em;
+}
+
+footer{background:var(--forest);color:rgba(255,255,255,.75);padding:72px 0 40px;font-size:14px}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px}
+footer .brand{color:#fff}
+footer p{max-width:46ch}
+footer h4{color:#fff;margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+footer a{text-decoration:none;color:rgba(255,255,255,.75)}
+footer a:hover{color:#fff}
+footer .fine{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.12);padding-top:18px;font-size:12.5px;color:rgba(255,255,255,.55);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px){
+  .hero .wrap{grid-template-columns:1fr;gap:40px;padding-top:56px;padding-bottom:64px}
+  .compose{min-height:0;display:grid;gap:14px}
+  .compose .card{position:static;transform:none;width:100%}
+  .pillars .grid{grid-template-columns:1fr 1fr}
+  .pillar:nth-child(2){border-right:0}
+  .pillar:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .symp,.skills-grid{grid-template-columns:1fr}
+  .out{position:static}
+  .hosp-grid{grid-template-columns:1fr}
+  .sec-head{grid-template-columns:1fr;gap:12px}
+  footer .wrap{grid-template-columns:1fr 1fr}
+}
+@media (max-width: 720px){
+  .nav-links{display:none}
+  .nav .wrap{gap:10px}
+  .sos span.txt{display:none}
+  .brand{font-size:19px}
+  .langs button{padding:7px 9px;font-size:12px}
+  section{padding:60px 0}
+  .pillars .grid{grid-template-columns:1fr}
+  .pillar{border-right:0;border-bottom:1px solid var(--line)}
+  .pillar:last-child{border-bottom:0}
+  .skill-list{grid-template-columns:1fr}
+  .row3{grid-template-columns:1fr 1fr 1fr}
+  footer .wrap{grid-template-columns:1fr}
+  .stats{gap:24px}
+}
+/* Reveal on scroll: starts visible (opacity .35, 16px low), settles when in view. */
+.reveal{opacity:.35;translate:0 16px;transition:opacity .7s cubic-bezier(.2,.7,.2,1),translate .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;translate:0 0}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+/* Proof strip */
+.proof{background:var(--surface);border-bottom:1px solid var(--line);padding:0}
+.proof .wrap{display:flex;justify-content:space-between;gap:24px;padding:22px 24px;flex-wrap:wrap}
+.proof .item{display:flex;align-items:center;gap:10px;font-weight:700;font-size:var(--t-sm);color:var(--ink-2)}
+.proof .item i{width:8px;height:8px;border-radius:50%;background:var(--marigold);display:inline-block}
+
+/* How it works */
+.how{background:var(--forest);color:#fff}
+.how .eyebrow{color:var(--marigold)}
+.how .eyebrow .n{background:rgba(255,255,255,.1)}
+.how .sec-head p{color:rgba(255,255,255,.72)}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative}
+.how-step{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:30px 28px;transition:background .2s,border-color .2s}
+.how-step:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.24)}
+.how-step .n{font-family:var(--display);font-weight:800;font-size:var(--t-xl);color:var(--marigold);letter-spacing:var(--track-display)}
+.how-step h3{font-size:var(--t-lg);font-weight:700;margin:14px 0 10px}
+.how-step p{margin:0;color:rgba(255,255,255,.76);font-size:15px;line-height:var(--lh-body)}
+.how-step .ex{margin-top:18px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.08);font-size:var(--t-sm);color:#fff;border-left:3px solid var(--marigold)}
+
+/* Trust */
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.trust{padding:30px 28px}
+.trust .glyph{width:44px;height:44px;border-radius:12px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin-bottom:20px}
+.trust h3{font-size:var(--t-lg);font-weight:700;margin-bottom:10px}
+.trust p{margin:0;color:var(--ink-2);font-size:15px;line-height:var(--lh-body)}
+.upd.stale{color:var(--warn)}
+
+@media (max-width: 1000px){
+  .how-grid,.trust-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important}
+  .reveal{opacity:1;translate:0 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Lafiya home">
+      <span class="mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg>
+      </span>
+      Lafiya
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#hospitals" data-i18n="nav.find">Find a hospital</a>
+      <a href="#symptoms" data-i18n="nav.symptoms">Explain symptoms</a>
+      <a href="#skills" data-i18n="nav.skills">Emergency skills</a>
+      <a href="#about" data-i18n="nav.about">About</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="yo" aria-pressed="false">YO</button>
+      <button type="button" data-lang="ha" aria-pressed="false">HA</button>
+      <button type="button" data-lang="ig" aria-pressed="false">IG</button>
+    </div>
+    <a class="sos" href="tel:112"><span class="dot" aria-hidden="true"></span><span class="txt" data-i18n="nav.sos">Emergency</span> 112</a>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="bg" aria-hidden="true">
+    <video data-video="heroVideo" muted loop playsinline autoplay preload="metadata"></video>
+    <img data-img="heroPoster" alt="">
+    <div class="veil"></div>
+  </div>
+  <div class="wrap">
+    <div>
+      <div class="greet"><span class="ln" aria-hidden="true"></span><span class="word" id="greet">Welcome</span></div>
+      <h1>
+        <span data-i18n="h1.a">Find care.</span><br>
+        <span class="accent" data-i18n="h1.b">Be understood.</span><br>
+        <span data-i18n="h1.c">Arrive prepared.</span>
+      </h1>
+      <p class="lead" data-i18n="hero.lead">Find hospitals near you with live doctor, oxygen and blood bank information, describe your symptoms before you arrive, and learn the basics that save lives. In English, Yorùbá, Hausa or Igbo.</p>
+
+      <form class="search" id="searchForm" role="search">
+        <span class="ico" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        </span>
+        <label for="q" class="sr" style="position:absolute;left:-9999px">Area</label>
+        <input id="q" type="text" data-i18n-ph="search.ph" placeholder="Enter your area, e.g. Ikeja" autocomplete="off">
+        <button class="btn" type="submit" data-i18n="search.btn">Search</button>
+      </form>
+      <div class="chips" id="heroChips">
+        <button type="button" class="chip" data-filter="blood" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s6 7.2 6 12a6 6 0 0 1-12 0c0-4.8 6-12 6-12z"/></svg>
+          <span data-i18n="chip.blood">Blood bank</span>
+        </button>
+        <button type="button" class="chip" data-filter="oxygen" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
+          <span data-i18n="chip.oxygen">Oxygen</span>
+        </button>
+        <button type="button" class="chip" data-filter="open24" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span data-i18n="chip.open">Open 24/7</span>
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b class="num">4</b><span data-i18n="stat.langs">Languages</span></div>
+        <div class="stat"><b class="num">15 <span style="font-size:16px" data-i18n="sk.min">min</span></b><span data-i18n="stat.refresh">Status refresh</span></div>
+        <div class="stat"><b class="num">6</b><span data-i18n="stat.skills">Emergency skills</span></div>
+        <div class="stat"><b data-i18n="stat.free.v">Free</b><span data-i18n="stat.free">Always, for everyone</span></div>
+      </div>
+    </div>
+
+    <div class="compose" aria-hidden="true">
+      <div class="card c1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="kicker" data-i18n="demo.live">Live hospital status</span>
+          <span class="live" data-i18n="demo.updated">Updated 8 min ago</span>
+        </div>
+        <h3>Alausa Specialist Hospital</h3>
+        <div class="sub">Ikeja · 2.1 km · <span data-i18n="chip.open">Open 24/7</span></div>
+        <div class="row3">
+          <div class="tile"><small data-i18n="h.doctors">Doctors on duty</small><b class="num">6</b></div>
+          <div class="tile"><small data-i18n="chip.oxygen">Oxygen</small><b><span class="status good"><i></i><span data-i18n="st.available">Available</span></span></b></div>
+          <div class="tile"><small data-i18n="chip.blood">Blood bank</small><b class="num">31 <span style="font-size:12px;font-weight:700;color:var(--ink-2)" data-i18n="h.units">units</span></b></div>
+        </div>
+        <div class="bloods">
+          <span class="blood">O+ 14</span><span class="blood">A+ 9</span><span class="blood">B+ 6</span><span class="blood low">O− 2</span>
+        </div>
+      </div>
+      <div class="card c2">
+        <span class="kicker" data-i18n="demo.summary">Pre-visit summary</span>
+        <h3 data-i18n="demo.forDoctor">For your doctor</h3>
+        <div class="summary-lines">
+          <span class="lang-tag">English</span>
+          Patient reports fever and vomiting (stomach), started a few days ago, moderate. Preferred language: Yorùbá.
+        </div>
+        <div class="summary-lines" style="margin-top:8px">
+          <span class="lang-tag">Yorùbá</span>
+          Ibà · Èébì · Inú · Ọjọ́ díẹ̀ · Àárín
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROOF STRIP ================= -->
+<section class="proof" aria-label="Product facts">
+  <div class="wrap">
+    <span class="item"><i aria-hidden="true"></i><span data-i18n="pf.1">No account needed</span></span>
+    <span class="item"><i aria-hidden="true"></i><span data-i18n="pf.2">Works on slow connections</span></span>
+    <span class="item"><i aria-hidden="true"></i><span data-i18n="pf.3">Status refreshed every 15 minutes</span></span>
+    <span class="item"><i aria-hidden="true"></i><span data-i18n="pf.4">Free, always</span></span>
+  </div>
+</section>
+
+<!-- ================= TICKER ================= -->
+<div class="ticker" aria-hidden="true">
+  <div class="track" id="ticker"></div>
+</div>
+
+<!-- ================= PILLARS ================= -->
+<section class="pillars" id="about">
+  <div class="wrap">
+    <div class="grid">
+      <div class="pillar reveal">
+        <span class="idx">01</span>
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M9 5v14M4 19h10M14 10l3 9 3-9M15 15h4"/></svg></div>
+        <h3 data-i18n="p1.t">In your language</h3>
+        <p data-i18n="p1.d">Every page in English, Yorùbá, Hausa and Igbo. Switch at any time; your symptom summary translates for the doctor too.</p>
+      </div>
+      <div class="pillar reveal d1">
+        <span class="idx">02</span>
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg></div>
+        <h3 data-i18n="p2.t">Explain before you arrive</h3>
+        <p data-i18n="p2.d">Describe what you feel in plain words. Lafiya turns it into a clear pre-visit summary your doctor can read in seconds.</p>
+      </div>
+      <div class="pillar reveal d2">
+        <span class="idx">03</span>
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.6a5 5 0 0 0-8.8-2.4 5 5 0 0 0-8.8 2.4c0 5.4 8.8 10.4 8.8 10.4s8.8-5 8.8-10.4z"/><path d="M3 12h5l2-3 2 6 2-3h7"/></svg></div>
+        <h3 data-i18n="p3.t">Learn to save a life</h3>
+        <p data-i18n="p3.d">Short, visual guides to CPR, choking, bleeding and stroke signs. Practise before you ever need them.</p>
+      </div>
+      <div class="pillar reveal d3">
+        <span class="idx">04</span>
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M3 21h18M12 10v6M9 13h6"/></svg></div>
+        <h3 data-i18n="p4.t">Know the hospital before you go</h3>
+        <p data-i18n="p4.d">Doctors on duty, oxygen supply and blood bank stock, updated by the hospitals themselves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MOSAIC ================= -->
+<section id="moments">
+  <div class="wrap">
+    <div class="eyebrow"><span class="n">◐</span><span data-i18n="mo.eb">Faces of care</span></div>
+    <div class="sec-head">
+      <h2 data-i18n="mo.title">Built for the people who use it</h2>
+      <p data-i18n="mo.sub">Lafiya is designed around real moments: a worried parent at midnight, a nurse at triage, a neighbour who knows what to do.</p>
+    </div>
+    <div class="mosaic">
+      <figure class="media m1 curtain px" data-speed="0.06">
+        <img data-img="docPatient" alt="Doctor listening to a patient's chest with a stethoscope">
+        <div class="shade"></div>
+        <figcaption class="cap"><span><span class="k">01</span><span data-i18n="mo.c1">A doctor who can read you in ten seconds</span></span></figcaption>
+      </figure>
+      <figure class="media m2 curtain px" data-speed="-0.04">
+        <img data-img="cpr" alt="Person practising chest compressions on a training manikin">
+        <div class="shade"></div>
+        <figcaption class="cap"><span><span class="k">02</span><span data-i18n="mo.c2">Three minutes of practice</span></span></figcaption>
+      </figure>
+      <figure class="media m3 curtain px" data-speed="0.05">
+        <img data-img="motherChild" alt="A mother carrying her child on her back">
+        <div class="shade"></div>
+        <figcaption class="cap"><span><span class="k">03</span><span data-i18n="mo.c3">Help that arrives in your language</span></span></figcaption>
+      </figure>
+      <figure class="media m4 curtain px" data-speed="-0.03">
+        <video data-video="reception" muted loop playsinline preload="none"></video>
+        <img data-img="lagosAerial" alt="Aerial view of Lagos">
+        <div class="shade"></div>
+        <span class="play" aria-hidden="true">▶</span>
+        <figcaption class="cap"><span><span class="k">04</span><span data-i18n="mo.c4">The right door, the first time</span></span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="how spot" id="how">
+  <div class="wrap">
+    <div class="eyebrow"><span class="n">→</span><span data-i18n="how.eb">How it works</span></div>
+    <div class="sec-head">
+      <h2 data-i18n="how.title">Three steps, start to finish</h2>
+      <p data-i18n="how.sub">Follow Amina, a trader in Ikeja whose daughter wakes with a high fever at 2am. An illustrative scenario.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-step reveal">
+        <div class="media thumb"><img data-img="motherChild2" alt=""><div class="shade"></div></div>
+        <div class="n">01</div>
+        <h3 data-i18n="how.1t">Describe, in Hausa</h3>
+        <p data-i18n="how.1d">Amina taps fever, vomiting, whole body, today, severe. Lafiya writes the summary in English for the doctor and keeps her Hausa copy.</p>
+        <div class="ex">Patient reports fever and vomiting, affecting the whole body, started today, severe severity.</div>
+      </div>
+      <div class="how-step reveal d1">
+        <div class="media thumb"><video data-video="hallway" muted loop playsinline preload="none"></video><img data-img="scrubs" alt=""><div class="shade"></div></div>
+        <div class="n">02</div>
+        <h3 data-i18n="how.2t">Choose with live facts</h3>
+        <p data-i18n="how.2d">The nearest clinic closed at 10pm. Alausa Specialist is 2.1 km away, open, with 6 doctors and oxygen available. She goes there, not the closest door.</p>
+        <div class="ex">Alausa Specialist · 2.1 km · <span data-i18n="h.doctors">Doctors on duty</span> 6 · <span data-i18n="chip.oxygen">Oxygen</span>: <span data-i18n="st.available">Available</span></div>
+      </div>
+      <div class="how-step reveal d2">
+        <div class="media thumb"><img data-img="docWoman" alt=""><div class="shade"></div></div>
+        <div class="n">03</div>
+        <h3 data-i18n="how.3t">Arrive understood</h3>
+        <p data-i18n="how.3d">At triage the nurse reads the English summary in ten seconds. No guessing, no translator, treatment starts sooner.</p>
+        <div class="ex">02:41 · <span data-i18n="how.3ex">Summary shown at triage. Preferred language noted: Hausa.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SYMPTOMS ================= -->
+<section id="symptoms">
+  <div class="wrap">
+    <div class="eyebrow"><span class="n">02</span><span data-i18n="eb.symptoms">Symptoms</span></div>
+    <div class="sec-head">
+      <h2 data-i18n="sy.title">Describe how you feel</h2>
+      <p data-i18n="sy.sub">Pick what applies. This is not a diagnosis; it is a clear note for the clinician who will see you, written in English and in your language.</p>
+    </div>
+    <div class="symp">
+      <div class="panel">
+        <div class="field">
+          <label data-i18n="sy.where">Where is the problem?</label>
+          <div class="opts" id="areaOpts" data-single="true"></div>
+        </div>
+        <div class="field">
+          <label data-i18n="sy.what">What do you feel?</label>
+          <div class="opts" id="symOpts"></div>
+        </div>
+        <div class="field">
+          <label data-i18n="sy.long">For how long?</label>
+          <div class="opts" id="durOpts" data-single="true"></div>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label data-i18n="sy.bad">How bad is it?</label>
+          <div class="opts" id="sevOpts" data-single="true"></div>
+        </div>
+      </div>
+      <div class="out">
+        <div class="panel">
+          <span class="kicker" data-i18n="sy.outKicker">Your pre-visit summary</span>
+          <div class="para" id="sumEn"><span class="tag">English · <span data-i18n="sy.forClin">for your clinician</span></span><span class="muted" data-i18n="sy.hint">Pick at least one symptom and the summary appears here.</span></div>
+          <div class="para local" id="sumLocal" style="display:none"><span class="tag" id="sumLocalTag">Yorùbá</span><span id="sumLocalText"></span></div>
+          <div class="flag" id="flag">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+            <span data-i18n="sy.flag">Difficulty breathing or heavy bleeding needs emergency care now. Call 112.</span>
+          </div>
+          <div class="actions">
+            <button class="btn light" type="button" id="copyBtn" data-i18n="sy.copy">Copy summary</button>
+            <button class="btn outline" type="button" id="resetBtn" data-i18n="sy.reset">Start over</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section class="skills" id="skills">
+  <div class="wrap">
+    <div class="eyebrow"><span class="n">03</span><span data-i18n="eb.skills">Emergency skills</span></div>
+    <div class="sec-head">
+      <h2 data-i18n="sk.title">Skills everyone should have</h2>
+      <p data-i18n="sk.sub">Three minutes each. No equipment. Often the difference before the ambulance arrives.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-list" id="skillList"></div>
+      <div class="feature">
+        <div class="media fmedia" id="featMedia"><img id="featImg" alt=""><div class="shade"></div></div>
+        <span class="kicker" data-i18n="sk.guide">Step by step</span>
+        <h3 id="featTitle">CPR for adults</h3>
+        <div class="note" id="featNote"></div>
+        <ol class="steps" id="featSteps"></ol>
+        <div class="en-note" id="enNote" data-i18n="sk.enNote">This guide is shown in English while its translation is reviewed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOSPITALS ================= -->
+<section id="hospitals">
+  <div class="wrap">
+    <div class="eyebrow"><span class="n">04</span><span data-i18n="eb.hosp">Hospitals</span></div>
+    <div class="sec-head">
+      <h2 data-i18n="h.title">Hospitals near you, with what matters</h2>
+      <p data-i18n="h.sub">Doctors on duty, oxygen and blood stock, shared by the hospitals. Sample data shown for Lagos.</p>
+    </div>
+    <div class="filters" id="filters">
+      <button type="button" class="opt" data-filter="all" aria-pressed="true" data-i18n="f.all">All</button>
+      <button type="button" class="opt" data-filter="blood" aria-pressed="false" data-i18n="chip.blood">Blood bank</button>
+      <button type="button" class="opt" data-filter="oxygen" aria-pressed="false" data-i18n="chip.oxygen">Oxygen</button>
+      <button type="button" class="opt" data-filter="open24" aria-pressed="false" data-i18n="chip.open">Open 24/7</button>
+    </div>
+    <div class="hosp-grid" id="hospGrid"></div>
+  </div>
+</section>
+
+<!-- ================= TRUST ================= -->
+<section id="trust">
+  <div class="wrap">
+    <div class="trust-head">
+      <div>
+        <div class="eyebrow"><span class="n">✓</span><span data-i18n="tr.eb">Trust</span></div>
+        <h2 style="font-size:var(--t-2xl);line-height:var(--lh-tight);font-weight:800;letter-spacing:var(--track-display);margin:18px 0 16px" data-i18n="tr.title">How we keep the information honest</h2>
+        <p style="margin:0;color:var(--ink-2);font-size:var(--t-md);line-height:var(--lh-body);max-width:46ch" data-i18n="tr.sub">A wrong number here costs more than a wrong number anywhere else. These are the rules.</p>
+      </div>
+      <figure class="media curtain px" data-speed="0.04" style="margin:0">
+        <img data-img="lagosAerial2" alt="Aerial view of Lagos streets">
+        <div class="shade"></div>
+        <figcaption class="cap"><span><span class="k">Lagos</span>Ikeja · Yaba · Surulere · Festac</span></figcaption>
+      </figure>
+    </div>
+    <div class="trust-grid">
+      <div class="card trust reveal">
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M3 21h18M12 10v6M9 13h6"/></svg></div>
+        <h3 data-i18n="tr.1t">Hospitals update their own status</h3>
+        <p data-i18n="tr.1d">Only verified hospital staff can change doctor, oxygen and blood numbers. Every card shows when it was last updated, and anything older than 30 minutes is flagged.</p>
+      </div>
+      <div class="card trust reveal d1">
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3 data-i18n="tr.2t">Guides follow standard protocols</h3>
+        <p data-i18n="tr.2d">Emergency steps are written from internationally recognised first-aid guidance. Translations are reviewed by native speakers before they leave the English-only state.</p>
+      </div>
+      <div class="card trust reveal d2">
+        <div class="glyph"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3 data-i18n="tr.3t">Nothing about you is stored</h3>
+        <p data-i18n="tr.3d">No account, no sign-in. Your symptom summary lives only on your phone until you choose to copy or show it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EMERGENCY BAND ================= -->
+<section class="band" style="padding:0">
+  <div class="wrap">
+    <div>
+      <h2 data-i18n="band.title">In an emergency, call 112.</h2>
+      <p data-i18n="band.sub">Free from any network in Nigeria. In Lagos you can also call 767.</p>
+    </div>
+    <a class="call" href="tel:112">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.9 2z"/></svg>
+      112
+    </a>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top"><span class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg></span>Lafiya</a>
+      <p style="margin-top:14px" data-i18n="foot.tag">Care in your language. Lafiya means health in Hausa and is understood across Nigeria.</p>
+    </div>
+    <div>
+      <h4 data-i18n="foot.explore">Explore</h4>
+      <ul>
+        <li><a href="#hospitals" data-i18n="nav.find">Find a hospital</a></li>
+        <li><a href="#symptoms" data-i18n="nav.symptoms">Explain symptoms</a></li>
+        <li><a href="#skills" data-i18n="nav.skills">Emergency skills</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 data-i18n="foot.hosp">For hospitals</h4>
+      <ul>
+        <li><a href="#trust" data-i18n="foot.status">How status works</a></li>
+        <li><a href="#trust" data-i18n="foot.privacy">Privacy</a></li>
+        <li><a href="#about" data-i18n="foot.contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="fine">
+      <span id="credits" data-i18n="foot.disc">Lafiya gives health information, not medical diagnosis. Hospital status is shared by hospitals and may change.</span>
+      <span><a href="#credits" data-i18n="foot.credits">Photo and video credits</a> · © 2026 Lafiya</span>
+      <span id="creditsList" style="flex-basis:100%;font-size:12px;color:rgba(255,255,255,.45)"></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------------- Translations ---------------- */
+const LANG_NAMES = {en:'English', yo:'Yorùbá', ha:'Hausa', ig:'Igbo'};
+const GREET = {en:'Welcome', yo:'Ẹ káàbọ̀', ha:'Barka da zuwa', ig:'Nnọọ'};
+
+const T = {
+en:{
+ 'stat.refresh':'Status refresh','pf.1':'No account needed','pf.2':'Works on slow connections','pf.3':'Status refreshed every 15 minutes','pf.4':'Free, always',
+ 'how.eb':'How it works','how.title':'Three steps, start to finish','how.sub':'Follow Amina, a trader in Ikeja whose daughter wakes with a high fever at 2am. An illustrative scenario.',
+ 'how.1t':'Describe, in Hausa','how.1d':'Amina taps fever, vomiting, whole body, today, severe. Lafiya writes the summary in English for the doctor and keeps her Hausa copy.',
+ 'how.2t':'Choose with live facts','how.2d':'The nearest clinic closed at 10pm. Alausa Specialist is 2.1 km away, open, with 6 doctors and oxygen available. She goes there, not the closest door.',
+ 'how.3t':'Arrive understood','how.3d':'At triage the nurse reads the English summary in ten seconds. No guessing, no translator, treatment starts sooner.','how.3ex':'Summary shown at triage. Preferred language noted: Hausa.',
+ 'tr.eb':'Trust','tr.title':'How we keep the information honest','tr.sub':'A wrong number here costs more than a wrong number anywhere else. These are the rules.',
+ 'tr.1t':'Hospitals update their own status','tr.1d':'Only verified hospital staff can change doctor, oxygen and blood numbers. Every card shows when it was last updated, and anything older than 30 minutes is flagged.',
+ 'tr.2t':'Guides follow standard protocols','tr.2d':'Emergency steps are written from internationally recognised first-aid guidance. Translations are reviewed by native speakers before they leave the English-only state.',
+ 'tr.3t':'Nothing about you is stored','tr.3d':'No account, no sign-in. Your symptom summary lives only on your phone until you choose to copy or show it.',
+ 'h.verify':'Verify by phone','foot.status':'How status works','foot.privacy':'Privacy',
+ 'mo.eb':'Faces of care','mo.title':'Built for the people who use it','mo.sub':'Lafiya is designed around real moments: a worried parent at midnight, a nurse at triage, a neighbour who knows what to do.','mo.c1':'A doctor who can read you in ten seconds','mo.c2':'Three minutes of practice','mo.c3':'Help that arrives in your language','mo.c4':'The right door, the first time','foot.credits':'Photo and video credits',
+ 'nav.find':'Find a hospital','nav.symptoms':'Explain symptoms','nav.skills':'Emergency skills','nav.about':'About','nav.sos':'Emergency',
+ 'h1.a':'Find care.','h1.b':'Be understood.','h1.c':'Arrive prepared.',
+ 'hero.lead':'Find hospitals near you with live doctor, oxygen and blood bank information, describe your symptoms before you arrive, and learn the basics that save lives. In English, Yorùbá, Hausa or Igbo.',
+ 'search.ph':'Enter your area, e.g. Ikeja','search.btn':'Search',
+ 'chip.blood':'Blood bank','chip.oxygen':'Oxygen','chip.open':'Open 24/7',
+ 'stat.langs':'Languages','stat.hosp':'Hospitals mapped','stat.skills':'Emergency skills','stat.free':'Always, for everyone','stat.free.v':'Free',
+ 'demo.live':'Live hospital status','demo.updated':'Updated 8 min ago','demo.summary':'Pre-visit summary','demo.forDoctor':'For your doctor',
+ 'h.doctors':'Doctors on duty','h.units':'units','st.available':'Available','st.low':'Low','st.out':'Out',
+ 'p1.t':'In your language','p1.d':'Every page in English, Yorùbá, Hausa and Igbo. Switch at any time; your symptom summary translates for the doctor too.',
+ 'p2.t':'Explain before you arrive','p2.d':'Describe what you feel in plain words. Lafiya turns it into a clear pre-visit summary your doctor can read in seconds.',
+ 'p3.t':'Learn to save a life','p3.d':'Short, visual guides to CPR, choking, bleeding and stroke signs. Practise before you ever need them.',
+ 'p4.t':'Know the hospital before you go','p4.d':'Doctors on duty, oxygen supply and blood bank stock, updated by the hospitals themselves.',
+ 'eb.symptoms':'Symptoms','eb.skills':'Emergency skills','eb.hosp':'Hospitals',
+ 'sy.title':'Describe how you feel','sy.sub':'Pick what applies. This is not a diagnosis; it is a clear note for the clinician who will see you, written in English and in your language.',
+ 'sy.where':'Where is the problem?','sy.what':'What do you feel?','sy.long':'For how long?','sy.bad':'How bad is it?',
+ 'sy.outKicker':'Your pre-visit summary','sy.forClin':'for your clinician','sy.hint':'Pick at least one symptom and the summary appears here.',
+ 'sy.flag':'Difficulty breathing or heavy bleeding needs emergency care now. Call 112.','sy.copy':'Copy summary','sy.copied':'Copied','sy.reset':'Start over',
+ 'sk.title':'Skills everyone should have','sk.sub':'Three minutes each. No equipment. Often the difference before the ambulance arrives.',
+ 'sk.guide':'Step by step','sk.enNote':'This guide is shown in English while its translation is reviewed.','sk.min':'min',
+ 'h.title':'Hospitals near you, with what matters','h.sub':'Doctors on duty, oxygen and blood stock, shared by the hospitals. Sample data shown for Lagos.',
+ 'f.all':'All','h.updated':'Updated','h.minAgo':'min ago','h.directions':'Directions','h.call':'Call','h.noBlood':'No blood bank','h.hours':'Open 8am to 10pm','h.sample':'Sample',
+ 'band.title':'In an emergency, call 112.','band.sub':'Free from any network in Nigeria. In Lagos you can also call 767.',
+ 'foot.tag':'Care in your language. Lafiya means health in Hausa and is understood across Nigeria.','foot.explore':'Explore','foot.hosp':'For hospitals','foot.join':'Join the network','foot.update':'Update your status','foot.contact':'Contact',
+ 'foot.disc':'Lafiya gives health information, not medical diagnosis. Hospital status is shared by hospitals and may change.',
+ areas:['Head','Chest','Stomach','Back','Arms or legs','Skin','Whole body'],
+ syms:['Pain','Fever','Cough','Vomiting','Dizziness','Bleeding','Swelling','Difficulty breathing','Weakness'],
+ durs:['Today','A few days','More than a week'],
+ sevs:['Mild','Moderate','Severe'],
+ skills:['CPR for adults','Choking','Severe bleeding','Stroke: spot it fast','Burns','Seizures'],
+},
+yo:{
+ 'stat.refresh':'Àtúnṣe ipò','pf.1':'Kò nílò àkáǹtì','pf.2':'Ó ń ṣiṣẹ́ lórí nẹ́tíwọ̀ọ̀kì tó lọ́ra','pf.3':'Ipò ń yípadà ní gbogbo ìṣẹ́jú 15','pf.4':'Ọ̀fẹ́, nígbà gbogbo',
+ 'how.eb':'Bí ó ṣe ń ṣiṣẹ́','how.title':'Ìgbésẹ̀ mẹ́ta, láti ìbẹ̀rẹ̀ dé òpin','how.sub':'Tẹ̀lé Amina, oníṣòwò ní Ikeja tí ọmọbìnrin rẹ̀ jí pẹ̀lú ibà gbígbóná ní aago méjì òru. Àpẹẹrẹ ìtàn ni.',
+ 'how.1t':'Ṣàlàyé, ní Hausa','how.1d':'Amina yan ibà, èébì, gbogbo ara, lónìí, líle. Lafiya kọ àkótán ní Gẹ̀ẹ́sì fún dókítà, ó sì pa ẹ̀dà Hausa rẹ̀ mọ́.',
+ 'how.2t':'Yan pẹ̀lú òtítọ́ lójú ẹsẹ̀','how.2d':'Ilé-ìwòsàn tó sún mọ́ ọn jù ti tì ní aago mẹ́wàá alẹ́. Alausa Specialist wà ní 2.1 km, ó ṣí, pẹ̀lú dókítà mẹ́fà àti ọ́síjìn. Ó lọ síbẹ̀, kì í ṣe ilẹ̀kùn tó sún mọ́ ọn jù.',
+ 'how.3t':'Dé, kí wọ́n lóye rẹ','how.3d':'Ní ibi ìgbàwọlé, nọ́ọ̀sì ka àkótán Gẹ̀ẹ́sì ní ìṣẹ́jú-àáyá mẹ́wàá. Kò sí àfọwọ́dánra, kò sí onítumọ̀, ìtọ́jú bẹ̀rẹ̀ kíákíá.','how.3ex':'A fi àkótán hàn ní ibi ìgbàwọlé. Èdè tó fẹ́: Hausa.',
+ 'tr.eb':'Ìgbẹ́kẹ̀lé','tr.title':'Bí a ṣe ń mú kí ìròyìn jẹ́ òtítọ́','tr.sub':'Nọ́ńbà tí kò tọ́ níbí ń ná ni ju ibòmíràn lọ. Àwọn òfin nìyí.',
+ 'tr.1t':'Ilé-ìwòsàn ń ṣe àtúnṣe ipò wọn fúnra wọn','tr.1d':'Òṣìṣẹ́ ilé-ìwòsàn tí a ti fọwọ́ sí nìkan ló lè yí nọ́ńbà dókítà, ọ́síjìn àti ẹ̀jẹ̀ padà. Káàdì kọ̀ọ̀kan fi ìgbà àtúnṣe tó kẹ́yìn hàn, a sì ń fi àmì sí èyíkéyìí tó ju ìṣẹ́jú 30 lọ.',
+ 'tr.2t':'Ìtọ́sọ́nà tẹ̀lé ìlànà gbogbogbòò','tr.2d':'A kọ àwọn ìgbésẹ̀ pajawiri láti inú ìtọ́sọ́nà ìrànlọ́wọ́ àkọ́kọ́ tí gbogbo àgbáyé mọ̀. Àwọn tó ń sọ èdè náà ni wọ́n ń ṣàyẹ̀wò ìtumọ̀ kí ó tó kúrò ní Gẹ̀ẹ́sì nìkan.',
+ 'tr.3t':'A kì í tọ́jú ohunkóhun nípa rẹ','tr.3d':'Kò sí àkáǹtì, kò sí ìwọlé. Àkótán àmì àìsàn rẹ wà lórí fóònù rẹ nìkan títí o fi yàn láti ṣe ẹ̀dà tàbí fi hàn.',
+ 'h.verify':'Jẹ́rìí sí i lórí fóònù','foot.status':'Bí ipò ṣe ń ṣiṣẹ́','foot.privacy':'Àṣírí',
+ 'mo.eb':'Ojú ìtọ́jú','mo.title':'A kọ́ ọ fún àwọn tó ń lò ó','mo.sub':'A ṣe Lafiya ní àyíká àwọn àkókò gidi: òbí tó ń ṣàníyàn ní ọ̀gànjọ́, nọ́ọ̀sì ní ibi ìgbàwọlé, aládùúgbò tó mọ ohun tó yẹ kó ṣe.','mo.c1':'Dókítà tó lè kà ọ́ ní ìṣẹ́jú-àáyá mẹ́wàá','mo.c2':'Ìṣẹ́jú mẹ́ta ìdánrawò','mo.c3':'Ìrànlọ́wọ́ tó dé ní èdè rẹ','mo.c4':'Ilẹ̀kùn tó tọ́, ní ìgbà àkọ́kọ́','foot.credits':'Ìdúpẹ́ fún fọ́tò àti fídíò',
+ 'nav.find':'Wá ilé-ìwòsàn','nav.symptoms':'Ṣàlàyé àmì àìsàn','nav.skills':'Ìmọ̀ pajawiri','nav.about':'Nípa wa','nav.sos':'Pajawiri',
+ 'h1.a':'Wá ìtọ́jú.','h1.b':'Jẹ́ kí wọ́n lóye rẹ.','h1.c':'Múra kí o tó dé.',
+ 'hero.lead':'Wá ilé-ìwòsàn tó wà nítòsí rẹ pẹ̀lú ìròyìn nípa dókítà, ọ́síjìn àti ibi ìpamọ́ ẹ̀jẹ̀, ṣàlàyé àmì àìsàn rẹ kí o tó dé, kí o sì kọ́ àwọn ìmọ̀ tó ń gba ẹ̀mí là. Ní Gẹ̀ẹ́sì, Yorùbá, Hausa tàbí Igbo.',
+ 'search.ph':'Tẹ àdúgbò rẹ, b.a. Ikeja','search.btn':'Wá',
+ 'chip.blood':'Ibi ìpamọ́ ẹ̀jẹ̀','chip.oxygen':'Ọ́síjìn','chip.open':'Ṣí ní gbogbo wákàtí',
+ 'stat.langs':'Èdè','stat.hosp':'Ilé-ìwòsàn','stat.skills':'Ìmọ̀ pajawiri','stat.free':'Nígbà gbogbo, fún gbogbo ènìyàn','stat.free.v':'Ọ̀fẹ́',
+ 'demo.live':'Ipò ilé-ìwòsàn lójú ẹsẹ̀','demo.updated':'Àtúnṣe ìṣẹ́jú 8 sẹ́yìn','demo.summary':'Àkótán fún dókítà','demo.forDoctor':'Fún dókítà rẹ',
+ 'h.doctors':'Dókítà lẹ́nu iṣẹ́','h.units':'ìwọ̀n','st.available':'Wà','st.low':'Kéré','st.out':'Kò sí',
+ 'p1.t':'Ní èdè rẹ','p1.d':'Gbogbo ojú-ewé ní Gẹ̀ẹ́sì, Yorùbá, Hausa àti Igbo. Yí padà nígbàkúgbà; àkótán àmì àìsàn rẹ yóò túmọ̀ fún dókítà pẹ̀lú.',
+ 'p2.t':'Ṣàlàyé kí o tó dé','p2.d':'Sọ bí ara rẹ ṣe rí lọ́nà tó rọrùn. Lafiya yóò ṣe é ní àkótán tó ṣe kedere tí dókítà rẹ lè kà ní ìṣẹ́jú-àáyá.',
+ 'p3.t':'Kọ́ bí a ṣe ń gba ẹ̀mí là','p3.d':'Ìtọ́sọ́nà kékeré pẹ̀lú àwòrán lórí CPR, ọ̀fun dídí, ẹ̀jẹ̀ ṣíṣàn àti àmì àrùn rọpárọsẹ̀. Ṣe ìdánrawò kí ó tó di dandan.',
+ 'p4.t':'Mọ ilé-ìwòsàn kí o tó lọ','p4.d':'Dókítà tó wà lẹ́nu iṣẹ́, ọ́síjìn àti ẹ̀jẹ̀ tó wà ní ìpamọ́, tí ilé-ìwòsàn fúnra wọn ń ṣe àtúnṣe rẹ̀.',
+ 'eb.symptoms':'Àmì àìsàn','eb.skills':'Ìmọ̀ pajawiri','eb.hosp':'Ilé-ìwòsàn',
+ 'sy.title':'Ṣàlàyé bí ara rẹ ṣe rí','sy.sub':'Yan ohun tó bá ara rẹ mu. Èyí kì í ṣe ìwádìí àìsàn; àkọsílẹ̀ tó ṣe kedere ni fún dókítà tí yóò rí ọ, ní Gẹ̀ẹ́sì àti ní èdè rẹ.',
+ 'sy.where':'Níbo ni ìṣòro wà?','sy.what':'Kí ni o ń rí lára?','sy.long':'Láti ìgbà wo?','sy.bad':'Báwo ló ṣe le tó?',
+ 'sy.outKicker':'Àkótán rẹ fún dókítà','sy.forClin':'fún dókítà rẹ','sy.hint':'Yan àmì àìsàn kan ó kéré tán, àkótán yóò hàn níbí.',
+ 'sy.flag':'Ìṣòro mímí tàbí ẹ̀jẹ̀ ṣíṣàn púpọ̀ nílò ìtọ́jú pajawiri báyìí. Pe 112.','sy.copy':'Ṣe ẹ̀dà àkótán','sy.copied':'Ti ṣe ẹ̀dà','sy.reset':'Bẹ̀rẹ̀ lẹ́ẹ̀kansí',
+ 'sk.title':'Ìmọ̀ tí gbogbo ènìyàn yẹ kí ó ní','sk.sub':'Ìṣẹ́jú mẹ́ta fún ìkọ̀ọ̀kan. Kò nílò ohun èlò. Ó sábà máa ń yí ohun gbogbo padà kí ọkọ̀ pajawiri tó dé.',
+ 'sk.guide':'Ní ìgbésẹ̀','sk.enNote':'A fi ìtọ́sọ́nà yìí hàn ní Gẹ̀ẹ́sì nígbà tí a ń ṣàyẹ̀wò ìtumọ̀ rẹ̀.','sk.min':'ìṣẹ́jú',
+ 'h.title':'Ilé-ìwòsàn nítòsí rẹ, pẹ̀lú ohun tó ṣe pàtàkì','h.sub':'Dókítà lẹ́nu iṣẹ́, ọ́síjìn àti ẹ̀jẹ̀ tó wà, tí ilé-ìwòsàn pín. Àpẹẹrẹ dátà fún Èkó.',
+ 'f.all':'Gbogbo','h.updated':'Àtúnṣe','h.minAgo':'ìṣẹ́jú sẹ́yìn','h.directions':'Ìtọ́sọ́nà','h.call':'Pe','h.noBlood':'Kò ní ibi ìpamọ́ ẹ̀jẹ̀','h.hours':'Ṣí 8 àárọ̀ sí 10 alẹ́','h.sample':'Àpẹẹrẹ',
+ 'band.title':'Ní pajawiri, pe 112.','band.sub':'Ọ̀fẹ́ ni láti orí nẹ́tíwọ̀ọ̀kì èyíkéyìí ní Nàìjíríà. Ní Èkó o tún lè pe 767.',
+ 'foot.tag':'Ìtọ́jú ní èdè rẹ. Lafiya túmọ̀ sí ìlera ní Hausa, gbogbo Nàìjíríà sì lóye rẹ̀.','foot.explore':'Ṣàwárí','foot.hosp':'Fún ilé-ìwòsàn','foot.join':'Dara pọ̀ mọ́ wa','foot.update':'Ṣe àtúnṣe ipò rẹ','foot.contact':'Kàn sí wa',
+ 'foot.disc':'Lafiya ń fún ni ní ìròyìn ìlera, kì í ṣe ìwádìí àìsàn. Ipò ilé-ìwòsàn wá láti ọ̀dọ̀ wọn, ó sì lè yípadà.',
+ areas:['Orí','Àyà','Inú','Ẹ̀yìn','Apá tàbí ẹsẹ̀','Awọ','Gbogbo ara'],
+ syms:['Ìrora','Ibà','Ikọ́','Èébì','Òyì','Ẹ̀jẹ̀ ń ṣàn','Wíwú','Ìṣòro mímí','Àìlera'],
+ durs:['Lónìí','Ọjọ́ díẹ̀','Ju ọ̀sẹ̀ kan lọ'],
+ sevs:['Fẹ́ẹ́rẹ́','Àárín','Líle'],
+ skills:['CPR fún àgbàlagbà','Ọ̀fun dídí','Ẹ̀jẹ̀ ṣíṣàn púpọ̀','Àmì àrùn rọpárọsẹ̀','Ìjóná','Gìrì'],
+},
+ha:{
+ 'stat.refresh':'Sabunta matsayi','pf.1':'Ba a bukatar asusu','pf.2':'Yana aiki a kan intanet mai jinkiri','pf.3':'Ana sabunta matsayi kowane minti 15','pf.4':'Kyauta, koyaushe',
+ 'how.eb':'Yadda yake aiki','how.title':'Matakai uku, daga farko zuwa ƙarshe','how.sub':'Bi Amina, \'yar kasuwa a Ikeja wadda \'yarta ta farka da zazzaɓi mai zafi da ƙarfe 2 na dare. Misalin labari ne.',
+ 'how.1t':'Bayyana, da Hausa','how.1d':'Amina ta zaɓi zazzaɓi, amai, jiki gaba ɗaya, yau, mai tsanani. Lafiya ta rubuta taƙaitawa da Turanci ga likita, ta kuma ajiye kwafinta na Hausa.',
+ 'how.2t':'Zaɓa da bayanai na yanzu','how.2d':'Asibitin da ke kusa ya rufe da ƙarfe 10 na dare. Alausa Specialist na nisan 2.1 km, a buɗe, da likitoci 6 da oxygen. Ta tafi can, ba ƙofar da ta fi kusa ba.',
+ 'how.3t':'Isa, a fahimce ka','how.3d':'A wurin karɓa, nas ta karanta taƙaitawar Turanci cikin daƙiƙa goma. Babu hasashe, babu mai fassara, magani ya fara da wuri.','how.3ex':'An nuna taƙaitawa a wurin karɓa. Harshen da aka zaɓa: Hausa.',
+ 'tr.eb':'Aminci','tr.title':'Yadda muke kiyaye gaskiyar bayanai','tr.sub':'Lamba mara daidai a nan ta fi kowace wuri tsada. Ga ƙa\'idodin.',
+ 'tr.1t':'Asibitoci na sabunta matsayinsu da kansu','tr.1d':'Ma\'aikatan asibiti da aka tabbatar ne kawai za su iya canza adadin likitoci, oxygen da jini. Kowace kati na nuna lokacin sabuntawa na ƙarshe, kuma ana yiwa duk abin da ya wuce minti 30 alama.',
+ 'tr.2t':'Jagorori na bin ƙa\'idodin da aka saba','tr.2d':'An rubuta matakan gaggawa daga jagororin agajin gaggawa da duniya ta amince da su. Masu magana da harshen na duba fassarori kafin su bar matsayin Turanci kaɗai.',
+ 'tr.3t':'Ba a adana komai game da kai','tr.3d':'Babu asusu, babu shiga. Taƙaitaccen alamominka na zama a wayarka kawai har sai ka zaɓi kwafa ko nunawa.',
+ 'h.verify':'Tabbatar ta waya','foot.status':'Yadda matsayi ke aiki','foot.privacy':'Sirri',
+ 'mo.eb':'Fuskokin kulawa','mo.title':'An gina shi don masu amfani da shi','mo.sub':'An tsara Lafiya a kusa da lokuta na gaske: iyaye masu damuwa da tsakar dare, nas a wurin karɓa, maƙwabci da ya san abin da zai yi.','mo.c1':'Likitan da zai karanta ka cikin daƙiƙa goma','mo.c2':'Mintuna uku na atisaye','mo.c3':'Taimakon da ke zuwa a yarenka','mo.c4':'Ƙofar da ta dace, tun farko','foot.credits':'Godiya ga hotuna da bidiyo',
+ 'nav.find':'Nemo asibiti','nav.symptoms':'Bayyana alamomi','nav.skills':'Ƙwarewar gaggawa','nav.about':'Game da mu','nav.sos':'Gaggawa',
+ 'h1.a':'Nemo kulawa.','h1.b':'A fahimce ka.','h1.c':'Isa cikin shiri.',
+ 'hero.lead':'Nemo asibitoci kusa da kai tare da bayanai kan likitoci, oxygen da bankin jini, bayyana alamomin rashin lafiyarka kafin ka isa, kuma ka koyi dabarun ceton rai. Cikin Turanci, Yoruba, Hausa ko Igbo.',
+ 'search.ph':'Shigar da unguwarka, misali Ikeja','search.btn':'Nema',
+ 'chip.blood':'Bankin jini','chip.oxygen':'Oxygen','chip.open':'A buɗe koyaushe',
+ 'stat.langs':'Harsuna','stat.hosp':'Asibitoci','stat.skills':'Ƙwarewar gaggawa','stat.free':'Koyaushe, ga kowa','stat.free.v':'Kyauta',
+ 'demo.live':'Matsayin asibiti kai tsaye','demo.updated':'An sabunta mintuna 8 da suka wuce','demo.summary':'Taƙaitawa ga likita','demo.forDoctor':'Ga likitanka',
+ 'h.doctors':'Likitoci a bakin aiki','h.units':'raka\'a','st.available':'Akwai','st.low':'Ƙaranci','st.out':'Babu',
+ 'p1.t':'A yarenka','p1.d':'Kowane shafi a Turanci, Yoruba, Hausa da Igbo. Canza a kowane lokaci; taƙaitaccen alamominka ma zai fassara wa likita.',
+ 'p2.t':'Bayyana kafin ka isa','p2.d':'Faɗi yadda kake ji a sauƙaƙan kalmomi. Lafiya za ta mayar da shi taƙaitaccen bayani da likitanka zai karanta cikin daƙiƙoƙi.',
+ 'p3.t':'Koyi ceton rai','p3.d':'Ƙananan jagorori masu hoto kan CPR, shaƙewa, zubar jini da alamomin shanyewar jiki. Yi atisaye kafin lokacin bukata.',
+ 'p4.t':'San asibiti kafin ka tafi','p4.d':'Likitocin da ke bakin aiki, oxygen da jinin da ke ajiye, asibitocin da kansu ke sabunta su.',
+ 'eb.symptoms':'Alamomi','eb.skills':'Ƙwarewar gaggawa','eb.hosp':'Asibitoci',
+ 'sy.title':'Bayyana yadda kake ji','sy.sub':'Zaɓi abin da ya shafe ka. Wannan ba gano cuta ba ne; bayani ne mai haske ga likitan da zai ganka, cikin Turanci da yarenka.',
+ 'sy.where':'A ina matsalar take?','sy.what':'Me kake ji?','sy.long':'Tun yaushe?','sy.bad':'Yaya tsananinsa?',
+ 'sy.outKicker':'Taƙaitaccen bayaninka ga likita','sy.forClin':'ga likitanka','sy.hint':'Zaɓi aƙalla alama ɗaya, taƙaitawar za ta bayyana a nan.',
+ 'sy.flag':'Wahalar numfashi ko zubar jini mai yawa na bukatar kulawar gaggawa yanzu. Kira 112.','sy.copy':'Kwafi taƙaitawa','sy.copied':'An kwafa','sy.reset':'Fara sabo',
+ 'sk.title':'Ƙwarewar da kowa ya kamata ya mallaka','sk.sub':'Mintuna uku kowanne. Babu kayan aiki. Sau da yawa shi ne bambanci kafin motar asibiti ta isa.',
+ 'sk.guide':'Mataki-mataki','sk.enNote':'Ana nuna wannan jagora a Turanci yayin da ake duba fassararsa.','sk.min':'min',
+ 'h.title':'Asibitoci kusa da kai, da abin da ke da muhimmanci','h.sub':'Likitoci a bakin aiki, oxygen da jinin da ke ajiye, daga asibitoci. Misalin bayanai na Lagos.',
+ 'f.all':'Duka','h.updated':'An sabunta','h.minAgo':'mintuna da suka wuce','h.directions':'Hanya','h.call':'Kira','h.noBlood':'Babu bankin jini','h.hours':'A buɗe 8 na safe zuwa 10 na dare','h.sample':'Misali',
+ 'band.title':'A lokacin gaggawa, kira 112.','band.sub':'Kyauta daga kowace hanyar sadarwa a Najeriya. A Lagos kuma za ka iya kiran 767.',
+ 'foot.tag':'Kulawa a yarenka. Lafiya na nufin lafiya a Hausa, kuma ana fahimtarta a faɗin Najeriya.','foot.explore':'Bincika','foot.hosp':'Ga asibitoci','foot.join':'Shiga hanyar sadarwa','foot.update':'Sabunta matsayinka','foot.contact':'Tuntuɓe mu',
+ 'foot.disc':'Lafiya na ba da bayanan lafiya, ba gano cuta ba. Matsayin asibiti daga asibitoci ne kuma yana iya canzawa.',
+ areas:['Kai','Ƙirji','Ciki','Baya','Hannu ko ƙafa','Fata','Jiki gaba ɗaya'],
+ syms:['Ciwo','Zazzaɓi','Tari','Amai','Juwa','Zubar jini','Kumburi','Wahalar numfashi','Rashin ƙarfi'],
+ durs:['Yau','Kwanaki kaɗan','Fiye da mako'],
+ sevs:['Sauƙi','Matsakaici','Mai tsanani'],
+ skills:['CPR ga manya','Shaƙewa','Zubar jini mai yawa','Alamomin shanyewar jiki','Ƙuna','Farfaɗiya'],
+},
+ig:{
+ 'stat.refresh':'Nmelite ọnọdụ','pf.1':'Achọghị akaụntụ','pf.2':'Ọ na-arụ ọrụ na netwọk dị nwayọọ','pf.3':'A na-emelite ọnọdụ kwa nkeji 15','pf.4':'N\'efu, mgbe niile',
+ 'how.eb':'Otú ọ si arụ ọrụ','how.title':'Nzọụkwụ atọ, site na mmalite ruo ọgwụgwụ','how.sub':'Soro Amina, onye ahịa na Ikeja nke nwa ya nwanyị tetara n\'ahụ ọkụ dị ukwuu n\'elekere 2 nke abalị. Ọ bụ akụkọ nlele.',
+ 'how.1t':'Kọwaa, n\'asụsụ Hausa','how.1d':'Amina họọrọ ahụ ọkụ, agbọ, ahụ dum, taa, siri ike. Lafiya dere nchịkọta n\'asụsụ Bekee maka dọkịta ma debe nke Hausa ya.',
+ 'how.2t':'Họrọ site n\'eziokwu ozugbo','how.2d':'Ụlọọgwụ kacha nso mechiri n\'elekere 10 nke abalị. Alausa Specialist dị 2.1 km, mepere, nwere ndị dọkịta 6 na oxygen. Ọ gara ebe ahụ, ọ bụghị ọnụ ụzọ kacha nso.',
+ 'how.3t':'Rute, ka a ghọta gị','how.3d':'N\'ebe nnabata, nọọsụ gụrụ nchịkọta Bekee n\'ime sekọnd iri. Enweghị ịkọ nkọ, enweghị onye ntụgharị, ọgwụgwọ malitere ngwa ngwa.','how.3ex':'E gosiri nchịkọta n\'ebe nnabata. Asụsụ a họọrọ: Hausa.',
+ 'tr.eb':'Ntụkwasị obi','tr.title':'Otú anyị si eme ka ozi bụrụ eziokwu','tr.sub':'Ọnụọgụ na-ezighị ezi ebe a na-efu karịa ebe ọ bụla ọzọ. Ndị a bụ iwu.',
+ 'tr.1t':'Ụlọọgwụ na-emelite ọnọdụ ha n\'onwe ha','tr.1d':'Naanị ndị ọrụ ụlọọgwụ enyochara nwere ike ịgbanwe ọnụọgụ ndị dọkịta, oxygen na ọbara. Kaadị ọ bụla na-egosi mgbe e melitere ya ikpeazụ, a na-akakwa ihe ọ bụla karịrị nkeji 30 akara.',
+ 'tr.2t':'Ntuziaka na-agbaso usoro ọkọlọtọ','tr.2d':'E si na ntuziaka enyemaka mbụ mba ụwa nabatara dee nzọụkwụ ihe mberede. Ndị na-asụ asụsụ ahụ na-enyocha nsụgharị tupu ha ahapụ ọnọdụ Bekee naanị.',
+ 'tr.3t':'Ọ dịghị ihe gbasara gị a na-echekwa','tr.3d':'Enweghị akaụntụ, enweghị nbanye. Nchịkọta mgbaàmà gị na-adị naanị na ekwentị gị ruo mgbe ị họọrọ idepụta ma ọ bụ igosi ya.',
+ 'h.verify':'Kwenye site na ekwentị','foot.status':'Otú ọnọdụ si arụ ọrụ','foot.privacy':'Nzuzo',
+ 'mo.eb':'Ihu nlekọta','mo.title':'E wuru ya maka ndị na-eji ya','mo.sub':'E mere Lafiya gburugburu oge ndị dị adị: nne ma ọ bụ nna na-echegbu onwe ya n\'etiti abalị, nọọsụ n\'ebe nnabata, onye agbata obi maara ihe ọ ga-eme.','mo.c1':'Dọkịta nwere ike ịgụ gị n\'ime sekọnd iri','mo.c2':'Nkeji atọ nke omume','mo.c3':'Enyemaka na-abịa n\'asụsụ gị','mo.c4':'Ọnụ ụzọ ziri ezi, na nke mbụ','foot.credits':'Ekele maka foto na vidiyo',
+ 'nav.find':'Chọọ ụlọọgwụ','nav.symptoms':'Kọwaa mgbaàmà','nav.skills':'Nkà ihe mberede','nav.about':'Maka anyị','nav.sos':'Ihe mberede',
+ 'h1.a':'Chọta nlekọta.','h1.b':'Ka a ghọta gị.','h1.c':'Rute n\'ịkwadebe.',
+ 'hero.lead':'Chọta ụlọọgwụ dị nso gị nwere ozi banyere ndị dọkịta, oxygen na ụlọ nchekwa ọbara, kọwaa mgbaàmà ọrịa gị tupu ị rute, ma mụta nkà ndị na-azọpụta ndụ. N\'asụsụ Bekee, Yoruba, Hausa ma ọ bụ Igbo.',
+ 'search.ph':'Tinye mpaghara gị, dịka Ikeja','search.btn':'Chọọ',
+ 'chip.blood':'Ụlọ nchekwa ọbara','chip.oxygen':'Oxygen','chip.open':'Mepere oge ọ bụla',
+ 'stat.langs':'Asụsụ','stat.hosp':'Ụlọọgwụ','stat.skills':'Nkà ihe mberede','stat.free':'Mgbe ọ bụla, maka onye ọ bụla','stat.free.v':'N\'efu',
+ 'demo.live':'Ọnọdụ ụlọọgwụ ozugbo','demo.updated':'Emelitere nkeji 8 gara aga','demo.summary':'Nchịkọta maka dọkịta','demo.forDoctor':'Maka dọkịta gị',
+ 'h.doctors':'Ndị dọkịta n\'ọrụ','h.units':'ụnịt','st.available':'Dị','st.low':'Dị ntakịrị','st.out':'Adịghị',
+ 'p1.t':'N\'asụsụ gị','p1.d':'Ibe ọ bụla n\'asụsụ Bekee, Yoruba, Hausa na Igbo. Gbanwee mgbe ọ bụla; nchịkọta mgbaàmà gị ga-asụgharịkwa maka dọkịta.',
+ 'p2.t':'Kọwaa tupu ị rute','p2.d':'Kwuo otú ahụ dị gị n\'okwu dị mfe. Lafiya ga-eme ka ọ bụrụ nchịkọta doro anya nke dọkịta gị nwere ike ịgụ n\'ime sekọnd ole na ole.',
+ 'p3.t':'Mụta ịzọpụta ndụ','p3.d':'Ntuziaka dị mkpụmkpụ nwere foto maka CPR, nkwụchi akpịrị, ọbara ọgbụgba na mgbaàmà strok. Mụọ tupu oge mkpa.',
+ 'p4.t':'Mara ụlọọgwụ tupu ị gaa','p4.d':'Ndị dọkịta nọ n\'ọrụ, oxygen na ọbara dị n\'ụlọ nchekwa, nke ụlọọgwụ n\'onwe ha na-emelite.',
+ 'eb.symptoms':'Mgbaàmà','eb.skills':'Nkà ihe mberede','eb.hosp':'Ụlọọgwụ',
+ 'sy.title':'Kọwaa otú ahụ dị gị','sy.sub':'Họrọ ihe metụtara gị. Nke a abụghị nchọpụta ọrịa; ọ bụ ndetu doro anya maka dọkịta ga-ahụ gị, n\'asụsụ Bekee na n\'asụsụ gị.',
+ 'sy.where':'Ebee ka nsogbu ahụ dị?','sy.what':'Gịnị ka ị na-enwe?','sy.long':'Kemgbe ole?','sy.bad':'Kedu ka ọ siri ike?',
+ 'sy.outKicker':'Nchịkọta gị maka dọkịta','sy.forClin':'maka dọkịta gị','sy.hint':'Họrọ opekata mpe otu mgbaàmà, nchịkọta ga-apụta ebe a.',
+ 'sy.flag':'Nsogbu iku ume ma ọ bụ ọbara ọgbụgba dị ukwuu chọrọ nlekọta ihe mberede ugbu a. Kpọọ 112.','sy.copy':'Depụta nchịkọta','sy.copied':'Edepụtara','sy.reset':'Malite ọzọ',
+ 'sk.title':'Nkà onye ọ bụla kwesịrị inwe','sk.sub':'Nkeji atọ nke ọ bụla. Enweghị ngwá ọrụ. Ọ na-abụkarị ihe dị iche tupu ụgbọala mberede abịa.',
+ 'sk.guide':'Nzọụkwụ na nzọụkwụ','sk.enNote':'A na-egosi ntuziaka a n\'asụsụ Bekee ka a na-enyocha nsụgharị ya.','sk.min':'nkeji',
+ 'h.title':'Ụlọọgwụ dị nso gị, na ihe dị mkpa','h.sub':'Ndị dọkịta n\'ọrụ, oxygen na ọbara dị, nke ụlọọgwụ kesara. Data nlele maka Lagos.',
+ 'f.all':'Ha niile','h.updated':'Emelitere','h.minAgo':'nkeji gara aga','h.directions':'Ụzọ','h.call':'Kpọọ','h.noBlood':'Enweghị ụlọ nchekwa ọbara','h.hours':'Mepere 8 ụtụtụ ruo 10 abalị','h.sample':'Nlele',
+ 'band.title':'N\'ihe mberede, kpọọ 112.','band.sub':'N\'efu site na netwọk ọ bụla na Naịjirịa. Na Lagos ị nwekwara ike ịkpọ 767.',
+ 'foot.tag':'Nlekọta n\'asụsụ gị. Lafiya pụtara ahụike n\'asụsụ Hausa, a na-aghọtakwa ya na Naịjirịa dum.','foot.explore':'Chọgharịa','foot.hosp':'Maka ụlọọgwụ','foot.join':'Sonye na netwọk','foot.update':'Melite ọnọdụ gị','foot.contact':'Kpọtụrụ anyị',
+ 'foot.disc':'Lafiya na-enye ozi ahụike, ọ bụghị nchọpụta ọrịa. Ọnọdụ ụlọọgwụ sitere n\'aka ha ma nwee ike ịgbanwe.',
+ areas:['Isi','Obi','Afọ','Azụ','Aka ma ọ bụ ụkwụ','Akpụkpọ ahụ','Ahụ dum'],
+ syms:['Mgbu','Ahụ ọkụ','Ụkwara','Agbọ','Isi ọwụwa','Ọbara ọgbụgba','Ọzịza','Nsogbu iku ume','Adịghị ike'],
+ durs:['Taa','Ụbọchị ole na ole','Ihe karịrị izu'],
+ sevs:['Ntakịrị','Ọkara','Siri ike'],
+ skills:['CPR maka ndị okenye','Nkwụchi akpịrị','Ọbara ọgbụgba dị ukwuu','Mgbaàmà strok','Ọnya ọkụ','Akwụkwụ'],
+}
+};
+
+/* ---------------- Skills content ---------------- */
+const SKILLS = [
+ {id:'cpr', mins:3, steps:{
+   en:['Check for response and breathing. Shout for help and call 112.','Place the heel of one hand on the centre of the chest, the other hand on top.','Push hard and fast: at least 5 cm deep, 100 to 120 pushes a minute.','Let the chest rise fully between pushes. Do not stop.','Continue until help arrives or the person starts breathing.'],
+   yo:['Ṣàyẹ̀wò bóyá ó dáhùn tó sì ń mí. Pariwo fún ìrànlọ́wọ́, pe 112.','Fi gìgísẹ̀ ọwọ́ kan sí àárín àyà, fi ọwọ́ kejì lé e.','Tẹ̀ ẹ́ lágbára, kíákíá: ó kéré tán 5 cm jìn, ìgbà 100 sí 120 ní ìṣẹ́jú kan.','Jẹ́ kí àyà gbé sókè pátápátá láàárín títẹ̀. Má dúró.','Máa bá a lọ títí ìrànlọ́wọ́ yóò fi dé tàbí tí ẹni náà bá bẹ̀rẹ̀ sí í mí.'],
+   ha:['Duba ko yana amsawa yana kuma numfashi. Yi kira don taimako, kira 112.','Sa tafin hannu ɗaya a tsakiyar ƙirji, ɗaya hannun a sama.','Danna da ƙarfi da sauri: aƙalla zurfin 5 cm, sau 100 zuwa 120 a minti.','Bari ƙirji ya tashi sosai tsakanin dannawa. Kada ka tsaya.','Ci gaba har sai taimako ya zo ko mutumin ya fara numfashi.'],
+   ig:['Lelee ma ọ na-aza ma na-eku ume. Tie mkpu maka enyemaka, kpọọ 112.','Tinye ikiri aka gị n\'etiti obi, tinye aka nke ọzọ n\'elu ya.','Pịa ya ike ma ngwa ngwa: opekata mpe 5 cm n\'omimi, ugboro 100 ruo 120 n\'otu nkeji.','Ka obi bilie kpamkpam n\'etiti mpịa. Akwụsịla.','Gaa n\'ihu ruo mgbe enyemaka bịara ma ọ bụ onye ahụ malite iku ume.']
+ }},
+ {id:'choking', mins:2, steps:{en:['Ask "Are you choking?" If they cannot speak, cough or breathe, act now.','Give 5 firm back blows between the shoulder blades with the heel of your hand.','Give 5 abdominal thrusts: fist just above the navel, pull sharply inwards and upwards.','Alternate 5 back blows and 5 thrusts until the object comes out.','If they collapse, call 112 and start CPR.']}},
+ {id:'bleeding', mins:2, steps:{en:['Call 112, or have someone else call.','Press firmly on the wound with a clean cloth or your hand. Do not lift it to check.','If blood soaks through, add more cloth on top and keep pressing.','Raise the injured limb if you can.','Keep the pressure on until help arrives.']}},
+ {id:'stroke', mins:2, steps:{en:['Face: ask them to smile. Does one side droop?','Arms: ask them to raise both arms. Does one drift down?','Speech: ask them to repeat a simple sentence. Is it slurred or strange?','Time: if you see any one sign, call 112 now and note the time it started.','Do not give food, drink or medicine while you wait.']}},
+ {id:'burns', mins:3, steps:{en:['Cool the burn under cool running water for 20 minutes.','Remove jewellery and loose clothing near the burn, but nothing that is stuck to the skin.','Cover loosely with cling film or a clean, non-fluffy cloth.','Do not use ice, butter, toothpaste, oil or raw egg.','Large, deep, or face, hand or genital burns: go to hospital.']}},
+ {id:'seizure', mins:2, steps:{en:['Clear the space around them and cushion the head.','Do not hold them down and do not put anything in the mouth.','Note the time the seizure started.','When it stops, roll them onto their side and stay with them.','Call 112 if it lasts over 5 minutes, repeats, or they are injured or not waking.']}},
+];
+const SKILL_ICONS = {
+ cpr:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.6a5 5 0 0 0-8.8-2.4 5 5 0 0 0-8.8 2.4c0 5.4 8.8 10.4 8.8 10.4s8.8-5 8.8-10.4z"/></svg>',
+ choking:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="7" r="3.5"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/></svg>',
+ bleeding:'<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s6 7.2 6 12a6 6 0 0 1-12 0c0-4.8 6-12 6-12z"/></svg>',
+ stroke:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+ burns:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-11-2 2-3 4-3 6-1-1-2-3-2-4-3 3-4 6-4 9 0 4 3 7 7 7z"/></svg>',
+ seizure:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+};
+
+/* ---------------- Hospitals (sample) ---------------- */
+const HOSPITALS = [
+ {name:'Alausa Specialist Hospital', area:'Ikeja', km:2.1, doctors:6, specs:'Emergency · Paediatrics · Surgery', oxygen:'available', blood:{'O+':14,'A+':9,'B+':6,'O−':2}, open24:true, upd:8, phone:'0700 000 0001'},
+ {name:'Lagoon View Medical Centre', area:'Victoria Island', km:7.4, doctors:4, specs:'Emergency · Internal medicine', oxygen:'low', blood:{'O+':3,'A+':5,'AB+':2}, open24:true, upd:21, phone:'0700 000 0002'},
+ {name:'Ojota Community Hospital', area:'Ojota', km:4.8, doctors:2, specs:'General practice · Maternity', oxygen:'available', blood:null, open24:false, upd:35, phone:'0700 000 0003'},
+ {name:'Festac Family Hospital & Blood Bank', area:'Festac Town', km:12.6, doctors:5, specs:'Emergency · Surgery · Haematology', oxygen:'out', blood:{'O+':22,'A+':11,'B+':8,'AB+':4,'O−':5}, open24:true, upd:4, phone:'0700 000 0004'},
+];
+
+/* ---------------- Media (free-licence sources) ----------------
+   Photos: Unsplash License (free for commercial use, no attribution required, credited anyway).
+   Video: Mixkit License (free for commercial use). Swap any URL for a local file in assets/ if you prefer self-hosting.
+   MEDIA_ON=false keeps the layout and shows the gradient panels instead (used for the claude.ai preview, which blocks remote media). */
+const MEDIA_ON = true;
+const U = (id, w=1600) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=72`;
+const MEDIA = {
+  heroPoster:  {src:U('photo-1636063448667-a42a681a7847',2000), credit:'Ben Iwara / Unsplash'},
+  heroVideo:   {src:'https://assets.mixkit.co/videos/4779/4779-360.mp4', credit:'Mixkit'},
+  docPatient:  {src:U('photo-1631558554184-319c88f4f8a4'), credit:'National Cancer Institute / Unsplash'},
+  cpr:         {src:U('photo-1755549746563-a7c0a391af36',1200), credit:'Frederick Shaw / Unsplash'},
+  motherChild: {src:U('photo-1721713809623-c42a82a009b8',1200), credit:'Ayano Tosin / Unsplash'},
+  motherChild2:{src:U('photo-1744807455254-92571bfdfdc8',900), credit:'David Geneugelijk / Unsplash'},
+  lagosAerial: {src:U('photo-1580239808566-2f1c56a693ac'), credit:'Omotayo Kofoworola / Unsplash'},
+  lagosAerial2:{src:U('photo-1707008797390-38f13ea40163',1400), credit:'Vitalis Nwenyi / Unsplash'},
+  scrubs:      {src:U('photo-1622253694238-3b22139576c6',900), credit:'Bruno Rodrigues / Unsplash'},
+  docWoman:    {src:U('photo-1678695972687-033fa0bdbac9',900), credit:'Ato Aikins / Unsplash'},
+  docGirl:     {src:U('photo-1536064479547-7ee40b74b807',1200), credit:'Francisco Venâncio / Unsplash'},
+  trauma:      {src:U('photo-1765996826970-df2db6481719',1200), credit:'Navy Medicine / Unsplash'},
+  cpr2:        {src:U('photo-1755549746560-f56c7bd0c82f',1200), credit:'Frederick Shaw / Unsplash'},
+  nurseWoman:  {src:U('photo-1643297654416-05795d62e39c',1200), credit:'Eben Kassaye / Unsplash'},
+  reception:   {src:'https://assets.mixkit.co/videos/4766/4766-360.mp4', credit:'Mixkit'},
+  hallway:     {src:'https://assets.mixkit.co/videos/4779/4779-360.mp4', credit:'Mixkit'},
+};
+const SKILL_IMG = {cpr:'cpr', choking:'trauma', bleeding:'cpr2', stroke:'docPatient', burns:'nurseWoman', seizure:'docGirl'};
+
+function loadMedia(){
+  if (!MEDIA_ON) return;
+  document.querySelectorAll('img[data-img]').forEach(img => {
+    const m = MEDIA[img.dataset.img]; if (!m) return;
+    img.loading = 'lazy'; img.decoding = 'async';
+    img.addEventListener('load', () => img.classList.add('ready'), {once:true});
+    img.src = m.src;
+    if (img.complete && img.naturalWidth) img.classList.add('ready');
+  });
+  document.querySelectorAll('video[data-video]').forEach(v => {
+    const m = MEDIA[v.dataset.video]; if (!m) return;
+    const hero = v.closest('.hero');
+    const start = () => { if (v.src) return; v.src = m.src; v.addEventListener('canplay', () => { v.classList.add('ready'); v.play().catch(()=>{}); }, {once:true}); };
+    if (hero) { start(); return; }
+    // Hover / in-view play for the rest
+    const fig = v.parentElement;
+    fig.addEventListener('mouseenter', () => { start(); v.play().catch(()=>{}); });
+    fig.addEventListener('mouseleave', () => { v.pause(); });
+    if ('IntersectionObserver' in window && window.matchMedia('(hover: none)').matches) {
+      new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { start(); v.play().catch(()=>{}); } else v.pause(); }), {threshold:.5}).observe(fig);
+    }
+  });
+}
+function setFeatImg(skillId){
+  const img = document.getElementById('featImg'); const m = MEDIA[SKILL_IMG[skillId]];
+  if (!MEDIA_ON || !m) { img.removeAttribute('src'); img.classList.remove('ready'); return; }
+  img.classList.remove('ready');
+  img.onload = () => img.classList.add('ready');
+  img.src = m.src;
+}
+
+/* ---------------- State ---------------- */
+let lang = 'en';
+try { const s = localStorage.getItem('lafiya.lang'); if (s && T[s]) lang = s; } catch(e){}
+const sel = { area:null, syms:new Set(), dur:null, sev:null };
+let activeSkill = 'cpr';
+let filter = 'all';
+const t = k => (T[lang] && T[lang][k] != null) ? T[lang][k] : T.en[k];
+
+/* ---------------- Rendering ---------------- */
+function applyText(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+  const g = document.getElementById('greet'); g.textContent = GREET[lang];
+}
+
+function renderOpts(id, list, key, single){
+  const box = document.getElementById(id);
+  box.innerHTML = '';
+  list.forEach((label, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'opt' + (key === 'sev' ? ' sev-' + (i+1) : '');
+    b.textContent = label; b.dataset.i = i;
+    const on = single ? sel[key] === i : sel.syms.has(i);
+    b.setAttribute('aria-pressed', String(on));
+    b.addEventListener('click', () => {
+      if (single) sel[key] = (sel[key] === i) ? null : i;
+      else sel.syms.has(i) ? sel.syms.delete(i) : sel.syms.add(i);
+      renderSymptoms();
+    });
+    box.appendChild(b);
+  });
+}
+function joinList(arr){
+  if (arr.length <= 1) return arr.join('');
+  return arr.slice(0,-1).join(', ') + ' and ' + arr[arr.length-1];
+}
+function renderSymptoms(){
+  renderOpts('areaOpts', t('areas'), 'area', true);
+  renderOpts('symOpts',  t('syms'),  'syms', false);
+  renderOpts('durOpts',  t('durs'),  'dur',  true);
+  renderOpts('sevOpts',  t('sevs'),  'sev',  true);
+
+  const en = T.en, sumEn = document.getElementById('sumEn'), sumLocal = document.getElementById('sumLocal');
+  const symIdx = [...sel.syms].sort((a,b)=>a-b);
+  const tag = `<span class="tag">English · ${t('sy.forClin')}</span>`;
+  if (!symIdx.length){
+    sumEn.innerHTML = tag + `<span class="muted">${t('sy.hint')}</span>`;
+    sumLocal.style.display = 'none';
+  } else {
+    const parts = [];
+    parts.push('Patient reports ' + joinList(symIdx.map(i => en.syms[i].toLowerCase())));
+    if (sel.area != null) parts.push('affecting the ' + en.areas[sel.area].toLowerCase());
+    let s = parts.join(', ');
+    if (sel.dur != null) s += ', started ' + ({0:'today',1:'a few days ago',2:'more than a week ago'})[sel.dur];
+    if (sel.sev != null) s += ', ' + en.sevs[sel.sev].toLowerCase() + ' severity';
+    s += '. Preferred language: ' + LANG_NAMES[lang] + '.';
+    sumEn.innerHTML = tag + s;
+    if (lang !== 'en'){
+      const loc = [];
+      symIdx.forEach(i => loc.push(t('syms')[i]));
+      if (sel.area != null) loc.push(t('areas')[sel.area]);
+      if (sel.dur != null) loc.push(t('durs')[sel.dur]);
+      if (sel.sev != null) loc.push(t('sevs')[sel.sev]);
+      document.getElementById('sumLocalTag').textContent = LANG_NAMES[lang];
+      document.getElementById('sumLocalText').textContent = loc.join(' · ');
+      sumLocal.style.display = '';
+    } else sumLocal.style.display = 'none';
+  }
+  const red = sel.syms.has(7) || sel.syms.has(5) || (sel.sev === 2 && sel.area === 1);
+  document.getElementById('flag').classList.toggle('show', red && symIdx.length > 0);
+}
+
+function renderSkills(){
+  const list = document.getElementById('skillList'); list.innerHTML = '';
+  const names = t('skills');
+  SKILLS.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'skill'; b.setAttribute('aria-pressed', String(s.id === activeSkill));
+    b.innerHTML = `<div class="top"><span class="glyph">${SKILL_ICONS[s.id]}</span><span class="mins num">${s.mins} ${t('sk.min')}</span></div><h3>${names[i]}</h3>`;
+    b.addEventListener('click', () => { activeSkill = s.id; renderSkills(); });
+    list.appendChild(b);
+  });
+  const s = SKILLS.find(x => x.id === activeSkill);
+  const idx = SKILLS.indexOf(s);
+  document.getElementById('featTitle').textContent = names[idx];
+  const steps = s.steps[lang] || s.steps.en;
+  document.getElementById('featNote').textContent = `${s.mins} ${t('sk.min')} · ${LANG_NAMES[s.steps[lang] ? lang : 'en']}`;
+  const ol = document.getElementById('featSteps'); ol.innerHTML = '';
+  steps.forEach(st => { const li = document.createElement('li'); li.textContent = st; ol.appendChild(li); });
+  document.getElementById('enNote').classList.toggle('show', !s.steps[lang]);
+  setFeatImg(s.id);
+}
+
+function statusHTML(st){
+  const map = {available:['good','st.available'], low:['warn','st.low'], out:['bad','st.out']};
+  const [cls, key] = map[st];
+  return `<span class="status ${cls}"><i></i>${t(key)}</span>`;
+}
+function renderHospitals(){
+  const grid = document.getElementById('hospGrid'); grid.innerHTML = '';
+  const rows = HOSPITALS.filter(h => {
+    if (filter === 'blood') return !!h.blood;
+    if (filter === 'oxygen') return h.oxygen === 'available';
+    if (filter === 'open24') return h.open24;
+    return true;
+  });
+  rows.forEach(h => {
+    const total = h.blood ? Object.values(h.blood).reduce((a,b)=>a+b,0) : 0;
+    const bloods = h.blood
+      ? Object.entries(h.blood).map(([k,v]) => `<span class="blood ${v<=3?'low':''}">${k} ${v}</span>`).join('')
+      : `<span class="pill off">${t('h.noBlood')}</span>`;
+    const card = document.createElement('article'); card.className = 'card hosp reveal in';
+    card.innerHTML = `
+      <div class="head">
+        <div>
+          <h3>${h.name}</h3>
+          <div class="meta">${h.area} · ${h.open24 ? `<span class="pill">${t('chip.open')}</span>` : `<span class="pill off">${t('h.hours')}</span>`} <span class="pill off">${t('h.sample')}</span></div>
+        </div>
+        <div class="dist num">${h.km} km</div>
+      </div>
+      <div class="row3">
+        <div class="tile"><small>${t('h.doctors')}</small><b class="num">${h.doctors}</b><div class="docs-list">${h.specs}</div></div>
+        <div class="tile"><small>${t('chip.oxygen')}</small><b>${statusHTML(h.oxygen)}</b></div>
+        <div class="tile"><small>${t('chip.blood')}</small><b class="num">${h.blood ? total + ' <span style="font-size:12px;font-weight:700;color:var(--ink-2)">' + t('h.units') + '</span>' : '0'}</b></div>
+      </div>
+      <div class="bloods">${bloods}</div>
+      <div class="foot">
+        <span class="upd num ${h.upd > 30 ? 'stale' : ''}">${t('h.updated')} ${h.upd} ${t('h.minAgo')}${h.upd > 30 ? ' · ' + t('h.verify') : ''}</span>
+        <div class="acts">
+          <a class="btn ghost sm" href="#hospitals" style="text-decoration:none">${t('h.directions')}</a>
+          <a class="btn sm" href="tel:${h.phone.replace(/\s/g,'')}" style="text-decoration:none">${t('h.call')} · ${h.phone}</a>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  document.querySelectorAll('#filters .opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === filter)));
+  document.querySelectorAll('#heroChips .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === filter)));
+}
+
+function renderAll(){ applyText(); renderSymptoms(); renderSkills(); renderHospitals(); }
+
+/* ---------------- Events ---------------- */
+document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => {
+  lang = b.dataset.lang;
+  try { localStorage.setItem('lafiya.lang', lang); } catch(e){}
+  renderAll();
+}));
+document.querySelectorAll('#filters .opt').forEach(b => b.addEventListener('click', () => { filter = b.dataset.filter; renderHospitals(); }));
+document.querySelectorAll('#heroChips .chip').forEach(b => b.addEventListener('click', () => {
+  filter = (filter === b.dataset.filter) ? 'all' : b.dataset.filter;
+  renderHospitals();
+  document.getElementById('hospitals').scrollIntoView({behavior:'smooth', block:'start'});
+}));
+document.getElementById('searchForm').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('hospitals').scrollIntoView({behavior:'smooth', block:'start'});
+});
+document.getElementById('resetBtn').addEventListener('click', () => { sel.area = null; sel.syms.clear(); sel.dur = null; sel.sev = null; renderSymptoms(); });
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('copyBtn');
+  const text = document.getElementById('sumEn').innerText + (document.getElementById('sumLocal').style.display === 'none' ? '' : '\n' + document.getElementById('sumLocal').innerText);
+  try { await navigator.clipboard.writeText(text); btn.textContent = t('sy.copied'); } catch(e){ btn.textContent = t('sy.copied'); }
+  setTimeout(() => { btn.textContent = t('sy.copy'); }, 1400);
+});
+
+/* Greeting rotation: cycles through the four languages unless the viewer prefers reduced motion. */
+(function(){
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  const order = ['en','yo','ha','ig']; let i = 0;
+  const el = document.getElementById('greet');
+  setInterval(() => {
+    i = (i + 1) % order.length;
+    el.classList.add('out');
+    setTimeout(() => { el.textContent = GREET[order[i]]; el.classList.remove('out'); }, 350);
+  }, 2400);
+})();
+
+renderAll();
+loadMedia();
+(function(){ if (!MEDIA_ON) return; const names = [...new Set(Object.values(MEDIA).map(m => m.credit))]; document.getElementById('creditsList').textContent = names.join(' · '); })();
+
+/* Ticker: greetings and the four language names, doubled for a seamless loop. */
+(function(){
+  const items = ['Ẹ káàbọ̀','Barka da zuwa','Nnọọ','Welcome','Yorùbá','Hausa','Igbo','English','Ìlera','Lafiya','Ahụike','Health'];
+  const html = items.map(w => `<span>${w}<i></i></span>`).join('');
+  document.getElementById('ticker').innerHTML = html + html;
+})();
+
+/* Count-up for hero numbers, once, from zero. */
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.stats b.num').forEach(b => {
+    const first = b.firstChild; if (!first || first.nodeType !== 3) return;
+    const n = parseInt(first.textContent, 10); if (isNaN(n) || reduce) return;
+    const t0 = performance.now(), dur = 1100;
+    const tick = now => { const p = Math.min(1,(now-t0)/dur), e = 1-Math.pow(1-p,3); first.textContent = Math.round(n*e); if (p<1) requestAnimationFrame(tick); };
+    first.textContent = '0'; requestAnimationFrame(tick);
+  });
+})();
+
+/* Nav condenses after the hero; parallax on media frames; spotlight follows the pointer on the dark story section. */
+(function(){
+  const nav = document.querySelector('.nav');
+  const px = [...document.querySelectorAll('.px')];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+      if (!reduce) px.forEach(el => {
+        const r = el.getBoundingClientRect(); const mid = r.top + r.height/2 - window.innerHeight/2;
+        el.style.transform = `translateY(${(-mid * parseFloat(el.dataset.speed||0.05)).toFixed(1)}px)`;
+      });
+      ticking = false;
+    });
+  };
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+  document.querySelectorAll('.spot').forEach(sec => sec.addEventListener('pointermove', e => {
+    const r = sec.getBoundingClientRect(); sec.style.setProperty('--mx', (e.clientX-r.left)+'px'); sec.style.setProperty('--my', (e.clientY-r.top)+'px');
+  }));
+  // Curtain reveal for media frames
+  const cur = document.querySelectorAll('.curtain');
+  if (!('IntersectionObserver' in window)) { cur.forEach(c => c.classList.add('in')); return; }
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.2});
+  cur.forEach(c => io.observe(c));
+})();
+
+/* Magnetic pull on primary buttons (desktop pointers only). */
+(function(){
+  if (!window.matchMedia('(hover: hover)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.btn:not(.sm), .sos, .call').forEach(b => {
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); const x = (e.clientX - r.left - r.width/2)/r.width, y = (e.clientY - r.top - r.height/2)/r.height; b.style.transform = `translate(${x*6}px, ${y*6}px)`; });
+    b.addEventListener('pointerleave', () => { b.style.transform = ''; });
+  });
+})();
+
+/* Reveal: elements settle into place as they enter the viewport. Without IntersectionObserver everything is simply shown. */
+(function(){
+  const els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:.15});
+  els.forEach(e => io.observe(e));
+})();
+</script>
+</body>
+</html>
